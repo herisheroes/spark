@@ -1,0 +1,16 @@
+{
+  "name": "SPARK - Smart Program for Active Reading",
+  "short_name": "SPARK V3",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#1a1025",
+  "theme_color": "#4c2882",
+  "description": "Aplikasi Literasi SDN 3 Sukahurip - Mode Offline",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Google_Docs_icon_%282014-2020%29.svg/512px-Google_Docs_icon_%282014-2020%29.svg.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
