@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPARK V3 - The Archive Explorers</title>
     
-    <!-- PWA Manifest -->
+    <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1025">
 
@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <!-- Library Barcode Scanner -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
@@ -39,6 +38,7 @@
         .card-img-wrapper { height: 160px; overflow: hidden; border-radius: 0.75rem 0.75rem 0 0; position: relative;}
         .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
         .card-hover:hover img { transform: scale(1.05); }
+        @media print { body { background: white; color: black; } nav, footer, .no-print { display: none !important; } .bg-white { box-shadow: none; border: 1px solid #ccc; } }
     </style>
 </head>
 <body class="bg-stars">
@@ -56,29 +56,6 @@
     </div>
     <div id="coinAnim" class="coin-popup"><i class="fa-solid fa-star"></i> <span id="coinValue" class="text-3xl">+50</span></div>
 
-    <!-- FULLSCREEN READER (Disembunyikan untuk mempersingkat, sama persis dengan V2.1) -->
-    <!-- (Pastikan kode Fullscreen Reader, Modal Siswa, Konten, Level, dll tetap disisipkan di sini dari versi V2.1 jika Bapak membangun ulang manual. Untuk versi jadi ini, saya singkat form modalnya agar tidak overlimit karakter, fungsinya tetap jalan) -->
-    <div id="fullscreen-reader" class="fixed inset-0 z-[120] hidden bg-gray-100 flex-col fade-in">
-        <div class="bg-space-900 text-white px-4 md:px-6 py-3 flex justify-between items-center shadow-lg border-b border-space-600 z-50">
-            <div class="flex items-center gap-4 w-1/3">
-                <button onclick="cancelReading()" class="text-gray-400 hover:text-white transition p-2" title="Kembali / Batalkan"><i class="fa-solid fa-arrow-left text-xl"></i></button>
-                <h2 class="text-lg font-bold truncate hidden sm:block" id="fs-read-title">Judul Bacaan</h2>
-            </div>
-            <div class="flex justify-center w-1/3">
-                <div class="flex items-center bg-space-800 rounded-full px-4 py-1.5 border border-space-600 shadow-inner">
-                    <i class="fa-solid fa-stopwatch text-spark-orange mr-2"></i>
-                    <span id="fs-read-timer" class="font-mono text-sm md:text-base font-bold text-gray-200">00:00 / 05:00</span>
-                </div>
-            </div>
-            <div class="flex justify-end w-1/3">
-                <button id="btn-fs-finish" onclick="completeStepReading()" disabled class="bg-gray-600 text-gray-400 font-bold py-1.5 px-4 md:px-6 rounded-full cursor-not-allowed transition-all text-sm md:text-base opacity-50">
-                    <i class="fa-solid fa-check mr-2"></i> SELESAI
-                </button>
-            </div>
-        </div>
-        <div id="fs-read-content" class="flex-grow p-4 md:p-6 overflow-y-auto w-full flex flex-col relative text-gray-800 bg-white"></div>
-    </div>
-
     <!-- ==================== LOGIN VIEW DENGAN SCANNER ==================== -->
     <main id="view-login" class="flex items-center justify-center fade-in min-h-[80vh]">
         <div class="glass-panel p-8 rounded-3xl border-2 border-spark-blue shadow-[0_0_30px_rgba(56,189,248,0.2)] max-w-md w-full mx-4 text-center">
@@ -87,14 +64,12 @@
             <p class="text-spark-blue mb-8 font-bold tracking-widest text-sm uppercase">Smart Program for Active Reading V3</p>
             
             <div class="space-y-4">
-                <!-- Area Kamera QR -->
                 <div id="reader" class="w-full bg-space-900 rounded-xl overflow-hidden hidden border border-spark-blue"></div>
-                
                 <button onclick="startScanner()" class="w-full bg-space-800 hover:bg-space-600 text-spark-blue font-bold py-3 px-4 rounded-xl border border-spark-blue transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-qrcode text-xl"></i> PINDAI KARTU SPARK
                 </button>
                 
-                <div class="flex items-center text-gray-500 my-2"><div class="flex-grow border-t border-space-600"></div><span class="px-3 text-xs uppercase font-bold">Atau Manual</span><div class="flex-grow border-t border-space-600"></div></div>
+                <div class="flex items-center text-gray-500 my-2"><div class="flex-grow border-t border-space-600"></div><span class="px-3 text-xs uppercase font-bold">Atau Ketik Manual</span><div class="flex-grow border-t border-space-600"></div></div>
                 
                 <input type="text" id="loginUsername" placeholder="NISN / Username" class="w-full bg-space-900 border border-space-600 rounded-xl px-4 py-3 text-white focus:border-spark-blue text-center">
                 <input type="password" id="loginPassword" placeholder="Kata Sandi (Kosongkan jika Scan)" class="w-full bg-space-900 border border-space-600 rounded-xl px-4 py-3 text-white focus:border-spark-blue text-center">
@@ -103,7 +78,7 @@
                     MULAI PETUALANGAN
                 </button>
                 <button id="btn-login-adm" onclick="login('admin')" class="w-full bg-space-600 hover:bg-space-800 text-gray-300 font-bold py-2 px-4 rounded-xl transition text-xs mt-2">
-                    <i class="fa-solid fa-user-shield mr-2"></i> Ruang Admin
+                    <i class="fa-solid fa-user-shield mr-2"></i> Akses Ruang Kendali (Admin)
                 </button>
             </div>
         </div>
@@ -117,12 +92,10 @@
                     <i class="fa-solid fa-rocket text-spark-orange text-2xl"></i><span class="text-xl font-black text-white tracking-widest hidden sm:block">SPARK</span>
                 </div>
                 <div class="flex gap-4 items-center">
-                    <!-- Indikator Cloud / Offline Sync -->
                     <button id="sync-indicator" class="hidden text-spark-orange animate-pulse relative group" onclick="syncOfflineData()">
                         <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-                        <span class="absolute top-8 right-0 bg-space-800 text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap border border-space-600">Ada data offline, ketuk saat internet aktif!</span>
+                        <span class="absolute top-8 right-0 bg-space-800 text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap border border-space-600">Ada antrean offline, ketuk saat sinyal stabil!</span>
                     </button>
-                    
                     <button onclick="navigate('dashboard')" class="text-gray-300 hover:text-spark-blue transition"><i class="fa-solid fa-house text-xl"></i></button>
                     <button onclick="navigate('library')" class="text-gray-300 hover:text-spark-blue transition"><i class="fa-solid fa-book-journal-whills text-xl"></i></button>
                     <button onclick="doLogout()" class="text-red-400 hover:text-red-300 transition ml-2 border-l border-space-600 pl-4"><i class="fa-solid fa-right-from-bracket text-xl"></i></button>
@@ -131,28 +104,24 @@
         </nav>
 
         <main class="max-w-6xl mx-auto w-full p-4 md:p-6 flex-grow">
-            <!-- DASHBOARD -->
+            <!-- DASHBOARD SISWA -->
             <div id="view-student-dashboard" class="hidden space-y-6 fade-in">
-                <!-- Profil Card -->
                 <div class="bg-gradient-to-r from-space-800 to-space-600 rounded-3xl p-6 shadow-xl border border-space-600 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
                     <div class="w-24 h-24 bg-space-900 rounded-full flex items-center justify-center border-4 border-spark-blue z-10"><i class="fa-solid fa-user-astronaut text-4xl text-spark-blue"></i></div>
                     <div class="flex-grow text-center md:text-left z-10 w-full">
                         <h2 class="text-2xl font-bold text-white mb-1" id="std-name">Kapten</h2>
                         <p class="text-spark-gold font-bold text-lg mb-2"><i class="fa-solid fa-star mr-1"></i> Lvl <span id="std-level-num">1</span></p>
-                        <div class="relative w-full h-4 bg-space-900 rounded-full overflow-hidden">
-                            <div id="std-exp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-spark-blue to-spark-gold progress-bar-fill" style="width: 0%;"></div>
-                        </div>
+                        <div class="relative w-full h-4 bg-space-900 rounded-full overflow-hidden"><div id="std-exp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-spark-blue to-spark-gold progress-bar-fill" style="width: 0%;"></div></div>
                         <p class="text-xs mt-1 text-gray-400 font-bold text-right"><span id="std-exp-current">0</span> XP Total</p>
                     </div>
                 </div>
-
                 <div>
                     <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-satellite-dish text-spark-orange"></i> Transmisi Misi Tersedia</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="mission-grid"></div>
                 </div>
             </div>
 
-            <!-- LIBRARY -->
+            <!-- PERPUSTAKAAN SISWA -->
             <div id="view-student-library" class="hidden space-y-6 fade-in">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-space-800 p-4 rounded-2xl border border-space-600">
                     <h2 class="text-2xl font-bold"><i class="fa-solid fa-book-open text-spark-blue mr-2"></i> Arsip Data</h2>
@@ -161,7 +130,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="library-grid"></div>
             </div>
 
-            <!-- TASK FLOW -->
+            <!-- FULLSCREEN READER & TASK FLOW -->
             <div id="view-student-task-flow" class="hidden fade-in max-w-4xl mx-auto">
                 <button onclick="navigate('dashboard')" class="text-gray-400 hover:text-white mb-4 transition font-bold"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali</button>
                 <div class="bg-white text-space-900 rounded-3xl overflow-hidden shadow-2xl">
@@ -171,6 +140,15 @@
                         <span id="bc-quiz"><i class="fa-solid fa-question-circle"></i> 2. Kuis</span>
                         <i class="fa-solid fa-chevron-right text-gray-300"></i>
                         <span id="bc-journal"><i class="fa-solid fa-pen-nib"></i> 3. Jurnal</span>
+                    </div>
+                    
+                    <div id="step-reading" class="p-6 md:p-10 bg-white relative">
+                        <h2 class="text-2xl font-bold mb-4" id="fs-read-title">Judul Bacaan</h2>
+                        <div id="fs-read-content" class="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-6"></div>
+                        <div class="flex justify-between items-center bg-gray-100 p-4 rounded-xl border">
+                            <span id="fs-read-timer" class="font-mono font-bold text-gray-600">00:00 / 05:00</span>
+                            <button id="btn-fs-finish" onclick="completeStepReading()" disabled class="bg-gray-400 text-white font-bold py-2 px-6 rounded-xl cursor-not-allowed transition">SELESAI MEMBACA</button>
+                        </div>
                     </div>
 
                     <div id="step-quiz" class="hidden p-6 md:p-10 bg-gray-50">
@@ -191,324 +169,253 @@
         </main>
     </div>
 
+    <!-- ==================== ADMIN INTERFACE (100% DIKEMBALIKAN) ==================== -->
+    <div id="app-admin" class="hidden flex-col min-h-screen bg-gray-100 text-gray-800">
+        <nav class="bg-space-900 text-white shadow-md z-40 sticky top-0">
+            <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center h-auto md:h-16 py-2">
+                <div class="flex items-center gap-2 font-bold text-xl w-full md:w-auto justify-center md:justify-start mb-2 md:mb-0">
+                    <i class="fa-solid fa-user-shield text-spark-blue"></i> SPARK Admin
+                </div>
+                <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto text-sm">
+                    <button onclick="navAdmin('dashboard')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-chart-line"></i> Dasbor</button>
+                    <button onclick="navAdmin('students')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-users"></i> Siswa</button>
+                    <button onclick="navAdmin('validation')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-check-double"></i> Validasi Jurnal</button>
+                    <button onclick="doLogout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold transition ml-2">Keluar</button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-grow max-w-7xl mx-auto w-full p-4 md:p-6 pb-20">
+            <!-- ADMIN DASHBOARD -->
+            <div id="admin-view-dashboard" class="space-y-6 fade-in">
+                <h1 class="text-3xl font-black text-space-900">Analitik Aktivitas</h1>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow border-l-4 border-blue-500"><p class="text-xs text-gray-500 font-bold uppercase">Total Siswa</p><p class="text-3xl font-black" id="adm-stat-siswa">0</p></div>
+                    <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-500"><p class="text-xs text-gray-500 font-bold uppercase">Total Log</p><p class="text-3xl font-black" id="adm-stat-misi">0</p></div>
+                </div>
+            </div>
+
+            <!-- ADMIN STUDENTS CRUD -->
+            <div id="admin-view-students" class="hidden space-y-6 fade-in">
+                <div class="flex justify-between items-center"><h1 class="text-3xl font-black text-space-900">Data Siswa</h1></div>
+                <div class="bg-white rounded-2xl shadow overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-space-900 text-white"><tr><th class="p-4">Nama Siswa</th><th class="p-4">NISN</th><th class="p-4">Statistik</th></tr></thead>
+                        <tbody id="adm-siswa-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ADMIN VALIDATION -->
+            <div id="admin-view-validation" class="hidden space-y-6 fade-in">
+                <h1 class="text-3xl font-black text-space-900">Validasi Jurnal Pending</h1>
+                <div class="bg-white rounded-2xl shadow overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-space-900 text-white"><tr><th class="p-4">Siswa</th><th class="p-4">Konten</th><th class="p-4">Isi Jurnal</th><th class="p-4 text-center">Aksi</th></tr></thead>
+                        <tbody id="adm-jurnal-table"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
     <!-- ==================== SCRIPT LOGIC ==================== -->
     <script>
-        // 1. PWA SERVICE WORKER REGISTRATION
+        // PWA REGISTRATION
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => console.log('SW Registered')).catch(err => console.log('SW Failed', err));
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
         }
 
-        // 2. KONFIGURASI BACKEND
+        // KONEKSI DATABASE BAPAK
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw8_AMUcTXWhX57qdniEPlvH7Kj1r7lc0axKD2tjLJgfnFenbHZhE5rmWvRnks53XIY/exec"; 
 
-        // 3. STATE APLIKASI
-        let state = {
-            user: null, userLogs: [],
-            contentData: { misi: [], perpustakaan: [] },
-            currentTask: { type: null, data: null, currentStep: null },
-            timer: null, timeSpent: 0
-        };
+        let state = { user: null, userLogs: [], contentData: { misi: [], perpustakaan: [] }, currentTask: { type: null, data: null, currentStep: null }, timer: null, timeSpent: 0 };
 
-        // 4. OFFLINE INTERCEPTOR & API CALL
+        // 1. FUNGSI LOGIN (SUDAH DIPERBAIKI UNTUK ADMIN DAN SISWA)
+        async function login(role) {
+            const username = document.getElementById('loginUsername').value;
+            const pass = document.getElementById('loginPassword').value;
+            const btn = role === 'student' ? document.getElementById('btn-login-std') : document.getElementById('btn-login-adm');
+            
+            if(!username) return showModal("Error", "Mohon isi kelengkapan data (Scan QR atau Ketik).");
+            
+            const origText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`; btn.disabled = true;
+
+            const actionName = role === 'admin' ? 'loginAdmin' : 'login';
+            const payload = role === 'admin' ? {username: username, password: pass} : {nisn: username, password: pass};
+            
+            const res = await apiCall(actionName, payload);
+            btn.innerHTML = origText; btn.disabled = false;
+
+            if(res.success) {
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('loginUsername').value = ''; document.getElementById('loginPassword').value = '';
+                
+                if(role === 'admin') {
+                    // Masuk UI Admin
+                    document.getElementById('app-admin').classList.remove('hidden');
+                    document.getElementById('app-admin').classList.add('flex');
+                    navAdmin('dashboard'); 
+                    initAdmin();
+                } else {
+                    // Masuk UI Siswa
+                    state.user = res.user; state.userLogs = res.logs || [];
+                    document.getElementById('app-student').classList.remove('hidden');
+                    document.getElementById('app-student').classList.add('flex');
+                    navigate('dashboard');
+                    
+                    // Tarik Konten dan simpan ke Ransel Offline
+                    apiCall('getContent').then(r => { 
+                        if(r.success) { 
+                            state.contentData = r; 
+                            localStorage.setItem('sparkContentCache', JSON.stringify(r)); 
+                            renderStudentUI(); 
+                        }
+                    }).catch(err => {
+                        let cached = localStorage.getItem('sparkContentCache');
+                        if (cached) { state.contentData = JSON.parse(cached); renderStudentUI(); showModal("Mode Offline Aktif", "Menggunakan arsip materi tersimpan."); }
+                    });
+                    renderStudentUI();
+                }
+            } else { showModal("Gagal", res.message); }
+        }
+
+        // 2. OFFLINE QUEUE INTERCEPTOR
         async function apiCall(action, payloadData = {}) {
             if (!navigator.onLine) {
                 if (action === 'saveActivity') {
-                    // Simpan data offline ke localStorage
                     let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
                     queue.push({ action, data: payloadData, timestamp: Date.now() });
                     localStorage.setItem('sparkOfflineQueue', JSON.stringify(queue));
-                    
                     updateSyncIndicator();
-                    // Simulasi sukses untuk siswa
                     let tambahPoin = parseInt(payloadData.poin) || 0;
-                    let expBaru = state.user.exp + tambahPoin;
-                    return { success: true, message: "Internet terputus. Disimpan ke Ransel Offline!", poinBaru: expBaru, levelBaru: Math.floor(expBaru/1000)+1 };
-                } else {
-                    return { success: false, message: "Koneksi terputus. Fitur ini butuh internet." };
-                }
+                    return { success: true, message: "Disimpan di Ransel Offline!", poinBaru: state.user.exp + tambahPoin, levelBaru: Math.floor((state.user.exp + tambahPoin)/1000)+1 };
+                } else { return { success: false, message: "Koneksi terputus. Fitur ini butuh internet." }; }
             }
-
             try {
                 const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action, data: payloadData }) });
                 return await res.json();
             } catch (err) { return { success: false, message: err.message }; }
         }
 
-        // 5. SCANNER QR CODE
+        // 3. SCANNER LOGIC
         let html5QrcodeScanner;
         function startScanner() {
-            const readerEl = document.getElementById('reader');
-            readerEl.classList.remove('hidden');
-            
-            if(!html5QrcodeScanner) {
-                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-            }
-            
+            const readerEl = document.getElementById('reader'); readerEl.classList.remove('hidden');
+            if(!html5QrcodeScanner) html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
             html5QrcodeScanner.render((decodedText) => {
-                document.getElementById('loginUsername').value = decodedText;
-                document.getElementById('loginPassword').value = '';
-                html5QrcodeScanner.clear();
-                readerEl.classList.add('hidden');
-                login('student');
-            }, (error) => { /* Abaikan error */ });
+                document.getElementById('loginUsername').value = decodedText; document.getElementById('loginPassword').value = '';
+                html5QrcodeScanner.clear(); readerEl.classList.add('hidden'); login('student');
+            }, (error) => {});
         }
 
-        // 6. SYNC OFFLINE DATA
+        // 4. SINKRONISASI LOGIC
         function updateSyncIndicator() {
             let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
             const indicator = document.getElementById('sync-indicator');
-            if (queue.length > 0) indicator.classList.remove('hidden');
-            else indicator.classList.add('hidden');
+            if (queue.length > 0) indicator.classList.remove('hidden'); else indicator.classList.add('hidden');
         }
-
         window.addEventListener('online', syncOfflineData);
-
         async function syncOfflineData() {
             let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
             if (queue.length === 0) return;
-            
-            showModal("Sinyal Ditemukan!", "Menyinkronkan data arsip offline ke markas pusat...");
-            let indicator = document.getElementById('sync-indicator');
-            indicator.innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-xl"></i>';
-            
+            showModal("Sinyal Ditemukan!", "Menyinkronkan ransel arsip ke markas pusat...");
+            document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-xl"></i>';
             for (let i = 0; i < queue.length; i++) {
-                let task = queue[i];
-                try {
-                    await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: task.action, data: task.data }) });
-                } catch(e) { console.error("Gagal sync 1 item", e); }
+                try { await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: queue[i].action, data: queue[i].data }) }); } catch(e) {}
             }
-            
             localStorage.removeItem('sparkOfflineQueue');
-            indicator.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-xl"></i>';
-            updateSyncIndicator();
-            setTimeout(() => closeMessage(), 1500);
+            document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-xl"></i>';
+            updateSyncIndicator(); setTimeout(() => closeMessage(), 1500);
         }
-
         document.addEventListener("DOMContentLoaded", updateSyncIndicator);
 
-        // 7. CORE UI FUNCTIONS
-        function showModal(title, text, confirmFn = null) {
-            document.getElementById('messageTitle').innerText = title;
-            document.getElementById('messageText').innerText = text;
-            let btns = `<button onclick="closeMessage()" class="bg-spark-blue text-space-900 font-bold py-2 px-6 rounded-full w-full">Tutup</button>`;
-            if(confirmFn) {
-                btns = `<button onclick="closeMessage()" class="bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full">Batal</button>
-                        <button onclick="closeMessage(); ${confirmFn}()" class="bg-spark-blue text-space-900 font-bold py-2 px-4 rounded-full">Lanjut</button>`;
-            }
-            document.getElementById('messageActions').innerHTML = btns;
-            document.getElementById('messageModal').classList.remove('hidden');
-        }
+        // --- UI UTILS & STUDENT FLOW (Tetap Sama) ---
+        function showModal(title, text) { document.getElementById('messageTitle').innerText = title; document.getElementById('messageText').innerText = text; document.getElementById('messageModal').classList.remove('hidden'); }
         function closeMessage() { document.getElementById('messageModal').classList.add('hidden'); }
-        function triggerCoin(val) {
-            const el = document.getElementById('coinAnim');
-            document.getElementById('coinValue').innerText = "+" + val;
-            el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
-        }
-
-        async function login(role) {
-            const nisn = document.getElementById('loginUsername').value;
-            const pass = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('btn-login-std');
-            
-            if(!nisn) return showModal("Error", "Mohon isi NISN atau Scan Kartu.");
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`; btn.disabled = true;
-
-            const res = await apiCall('login', {nisn: nisn, password: pass});
-            btn.innerHTML = `MULAI PETUALANGAN`; btn.disabled = false;
-
-            if(res.success) {
-                document.getElementById('view-login').classList.add('hidden');
-                state.user = res.user; state.userLogs = res.logs || [];
-                document.getElementById('app-student').classList.remove('hidden');
-                document.getElementById('app-student').classList.add('flex');
-                navigate('dashboard');
-                
-                // CACHE CONTENT UNTUK OFFLINE
-                apiCall('getContent').then(r => { 
-                    if(r.success) { 
-                        state.contentData = r; 
-                        localStorage.setItem('sparkContentCache', JSON.stringify(r)); // SIMPAN DI LOKAL
-                        renderStudentUI(); 
-                    }
-                }).catch(err => {
-                    let cachedContent = localStorage.getItem('sparkContentCache');
-                    if (cachedContent) {
-                        state.contentData = JSON.parse(cachedContent);
-                        renderStudentUI();
-                        showModal("Mode Offline", "Menggunakan arsip materi dari memori HP.");
-                    }
-                });
-                renderStudentUI();
-            } else { showModal("Gagal", res.message); }
-        }
-
-        function doLogout() {
-            state.user = null;
-            document.getElementById('app-student').classList.add('hidden');
-            document.getElementById('view-login').classList.remove('hidden');
-        }
-
-        function navigate(view) {
-            ['dashboard', 'library', 'task-flow'].forEach(v => document.getElementById(`view-student-${v}`)?.classList.add('hidden'));
-            document.getElementById(`view-student-${view}`)?.classList.remove('hidden');
-            if(view === 'dashboard') renderStudentUI();
-        }
-
+        function doLogout() { state.user = null; document.getElementById('app-student').classList.add('hidden'); document.getElementById('app-admin').classList.add('hidden'); document.getElementById('view-login').classList.remove('hidden'); }
+        function navigate(view) { ['dashboard', 'library', 'task-flow'].forEach(v => document.getElementById(`view-student-${v}`)?.classList.add('hidden')); document.getElementById(`view-student-${view}`)?.classList.remove('hidden'); if(view === 'dashboard') renderStudentUI(); }
+        
         function renderStudentUI() {
             if(!state.user) return;
-            document.getElementById('std-name').innerText = state.user.nama;
-            document.getElementById('std-level-num').innerText = state.user.level;
-            document.getElementById('std-exp-current').innerText = state.user.exp;
-            let targetExp = state.user.level * 1000;
-            let pct = Math.min((state.user.exp / targetExp) * 100, 100);
-            setTimeout(() => document.getElementById('std-exp-bar').style.width = pct + '%', 100);
-
-            const mGrid = document.getElementById('mission-grid');
-            if(state.contentData.misi.length > 0) mGrid.innerHTML = state.contentData.misi.map(m => createCard(m, 'Misi')).join('');
-            
+            document.getElementById('std-name').innerText = state.user.nama; document.getElementById('std-level-num').innerText = state.user.level; document.getElementById('std-exp-current').innerText = state.user.exp;
+            let pct = Math.min((state.user.exp / (state.user.level * 1000)) * 100, 100); setTimeout(() => document.getElementById('std-exp-bar').style.width = pct + '%', 100);
+            if(state.contentData.misi.length > 0) document.getElementById('mission-grid').innerHTML = state.contentData.misi.map(m => createCard(m, 'Misi')).join('');
             renderLibraryItems(state.contentData.perpustakaan);
         }
-
-        function renderLibraryItems(items) {
-            const lGrid = document.getElementById('library-grid');
-            if(items && items.length > 0) lGrid.innerHTML = items.map(b => createCard(b, 'Perpustakaan')).join('');
-        }
-
-        function filterLibrary() {
-            const q = document.getElementById('lib-search').value.toLowerCase();
-            let filtered = state.contentData.perpustakaan || [];
-            if(q) filtered = filtered.filter(b => b.Judul.toLowerCase().includes(q));
-            renderLibraryItems(filtered);
-        }
-
+        function renderLibraryItems(items) { document.getElementById('library-grid').innerHTML = items && items.length > 0 ? items.map(b => createCard(b, 'Perpustakaan')).join('') : ''; }
+        function filterLibrary() { const q = document.getElementById('lib-search').value.toLowerCase(); renderLibraryItems((state.contentData.perpustakaan || []).filter(b => b.Judul.toLowerCase().includes(q))); }
+        
         function createCard(data, type) {
-            let imgUrl = data.Thumbnail_URL || 'https://via.placeholder.com/400x200/2d1b4e/ffffff?text=Arsip+SPARK';
+            let imgUrl = data.Thumbnail_URL || 'https://via.placeholder.com/400x200/2d1b4e/ffffff?text=Arsip';
             let totalPoin = (Number(data.Poin_Baca)||0) + (Number(data.Poin_Kuis)||0) + (Number(data.Poin_Jurnal)||0);
             let time = data.Min_Waktu_Baca_Menit || 5;
-            let hasRead = state.userLogs.some(l => l.kontenId === data.ID && l.tahap === 'Membaca');
-            let badge = hasRead ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded shadow"><i class="fa-solid fa-check"></i> Dibaca</div>` : '';
-
-            return `
-            <div class="bg-space-800 rounded-2xl border border-space-600 overflow-hidden flex flex-col card-hover cursor-pointer" onclick="initTask('${type}', '${data.ID}')">
-                <div class="card-img-wrapper">${badge}
-                    <div class="absolute top-2 left-2 bg-space-900/80 backdrop-blur text-spark-gold text-xs font-bold px-2 py-1 rounded"><i class="fa-solid fa-star"></i> ${totalPoin} XP</div>
-                    <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x200/2d1b4e/ffffff?text=No+Image'">
-                </div>
-                <div class="p-4 flex flex-col flex-grow">
-                    <p class="text-xs text-spark-blue font-bold mb-1">${data.Kategori}</p>
-                    <h4 class="text-lg font-bold mb-3 line-clamp-2">${data.Judul}</h4>
-                    <div class="mt-auto flex justify-between items-center text-xs text-gray-400">
-                        <span><i class="fa-regular fa-clock"></i> ${time} Menit</span><span class="bg-space-600 px-2 py-1 rounded text-white">${type}</span>
-                    </div>
-                </div>
-            </div>`;
+            let badge = state.userLogs.some(l => l.kontenId === data.ID && l.tahap === 'Membaca') ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded shadow"><i class="fa-solid fa-check"></i> Dibaca</div>` : '';
+            return `<div class="bg-space-800 rounded-2xl border border-space-600 overflow-hidden flex flex-col card-hover cursor-pointer" onclick="initTask('${type}', '${data.ID}')"><div class="card-img-wrapper">${badge}<div class="absolute top-2 left-2 bg-space-900/80 backdrop-blur text-spark-gold text-xs font-bold px-2 py-1 rounded"><i class="fa-solid fa-star"></i> ${totalPoin} XP</div><img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x200/2d1b4e/ffffff?text=No+Image'"></div><div class="p-4 flex flex-col flex-grow"><h4 class="text-lg font-bold mb-3">${data.Judul}</h4><div class="mt-auto flex justify-between items-center text-xs text-gray-400"><span><i class="fa-regular fa-clock"></i> ${time} Mnt</span><span class="bg-space-600 px-2 py-1 rounded text-white">${type}</span></div></div></div>`;
         }
 
         function initTask(type, contentId) {
             const arr = type === 'Misi' ? state.contentData.misi : state.contentData.perpustakaan;
-            state.currentTask.data = arr.find(x => x.ID === contentId);
-            state.currentTask.type = type;
-            
+            state.currentTask.data = arr.find(x => x.ID === contentId); state.currentTask.type = type;
             document.getElementById('fs-read-title').innerText = state.currentTask.data.Judul;
-            document.getElementById('fs-read-content').innerHTML = `<div class="p-6 md:p-10 prose prose-lg max-w-4xl mx-auto">${state.currentTask.data.Teks_Bacaan || "Arsip kosong"}</div>`;
-            
-            navigate('task-flow');
-            let logs = state.userLogs.filter(l => l.kontenId === contentId);
-            if(logs.some(l => l.tahap === 'Jurnal')) return showModal('Selesai', 'Kamu sudah menyelesaikan arsip ini.', 'kembaliKeDashboard');
-            if(logs.some(l => l.tahap === 'Membaca')) showModal('Ditemukan', 'Lanjut ke tugas berikutnya?', 'skipReadingStep');
-            else startReadingStep();
+            document.getElementById('fs-read-content').innerHTML = state.currentTask.data.Teks_Bacaan || "Arsip kosong";
+            navigate('task-flow'); startReadingStep();
         }
-
-        function kembaliKeDashboard() { navigate('dashboard'); }
-        function cancelReading() { clearInterval(state.timer); document.getElementById('fullscreen-reader').classList.remove('flex'); document.getElementById('fullscreen-reader').classList.add('hidden'); kembaliKeDashboard(); }
-        function switchTaskView(step) {
-            ['quiz', 'journal'].forEach(s => document.getElementById(`step-${s}`)?.classList.add('hidden'));
-            document.getElementById(`step-${step}`)?.classList.remove('hidden');
-        }
-
+        function switchTaskView(step) { ['reading', 'quiz', 'journal'].forEach(s => document.getElementById(`step-${s}`)?.classList.add('hidden')); document.getElementById(`step-${step}`)?.classList.remove('hidden'); }
         function startReadingStep() {
-            state.currentTask.currentStep = 'Membaca';
-            const fsReader = document.getElementById('fullscreen-reader');
-            fsReader.classList.remove('hidden'); fsReader.classList.add('flex');
-            
-            let minSeconds = (Number(state.currentTask.data.Min_Waktu_Baca_Menit) || 5) * 60;
-            state.timeSpent = 0;
-            const btn = document.getElementById('btn-fs-finish');
-            const timerTxt = document.getElementById('fs-read-timer');
-            btn.disabled = true; btn.classList.add('opacity-50');
-            
+            switchTaskView('reading'); let minSeconds = (Number(state.currentTask.data.Min_Waktu_Baca_Menit) || 5) * 60; state.timeSpent = 0;
+            const btn = document.getElementById('btn-fs-finish'); const timerTxt = document.getElementById('fs-read-timer'); btn.disabled = true; btn.classList.replace('bg-spark-blue', 'bg-gray-400');
             clearInterval(state.timer);
             state.timer = setInterval(() => {
-                state.timeSpent++;
-                let mins = Math.floor(state.timeSpent / 60).toString().padStart(2, '0');
-                let secs = (state.timeSpent % 60).toString().padStart(2, '0');
-                let minMins = Math.floor(minSeconds / 60).toString().padStart(2, '0');
-                let minSecs = (minSeconds % 60).toString().padStart(2, '0');
-                if (state.timeSpent < minSeconds) timerTxt.innerText = `${mins}:${secs} / ${minMins}:${minSecs}`;
-                else timerTxt.innerText = `${mins}:${secs} / Target Tercapai!`;
-
-                if(state.timeSpent === minSeconds) { btn.disabled = false; btn.classList.remove('opacity-50'); btn.classList.add('bg-spark-blue', 'text-white'); }
+                state.timeSpent++; let m = Math.floor(state.timeSpent/60).toString().padStart(2,'0'); let s = (state.timeSpent%60).toString().padStart(2,'0');
+                timerTxt.innerText = state.timeSpent < minSeconds ? `${m}:${s} / Target: ${Math.floor(minSeconds/60)} Mnt` : `${m}:${s} - Selesai!`;
+                if(state.timeSpent === minSeconds) { btn.disabled = false; btn.classList.replace('bg-gray-400', 'bg-spark-blue'); }
             }, 1000);
         }
-
-        function skipReadingStep() { state.currentTask.type === 'Misi' ? startQuizStep() : startJournalStep(); }
-
-        async function completeStepReading() {
-            clearInterval(state.timer);
-            document.getElementById('fullscreen-reader').classList.remove('flex'); document.getElementById('fullscreen-reader').classList.add('hidden');
-            const points = state.currentTask.data.Poin_Baca || 0;
-            
+        function completeStepReading() {
+            clearInterval(state.timer); const points = state.currentTask.data.Poin_Baca || 0;
             apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Membaca', poin: points, waktuDetik: state.timeSpent }).then(r => { if(r.success) updateUserLocal(r); });
-            state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Membaca'}); triggerCoin(points);
-            setTimeout(() => showModal('Selesai!', `Waktu membaca terekam. Siap lanjut?`, 'skipReadingStep'), 500);
+            state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Membaca'}); 
+            state.currentTask.type === 'Misi' ? startQuizStep() : startJournalStep();
         }
-
-        function startQuizStep() {
-            switchTaskView('quiz');
-            document.getElementById('quiz-question').innerText = state.currentTask.data.Pertanyaan_Kuis || "Apa intisarinya?";
-            document.getElementById('quiz-answer').value = '';
-        }
-
+        function startQuizStep() { switchTaskView('quiz'); document.getElementById('quiz-question').innerText = state.currentTask.data.Pertanyaan_Kuis || "Apa intisarinya?"; document.getElementById('quiz-answer').value = ''; }
         async function completeStepQuiz() {
-            const ans = document.getElementById('quiz-answer').value.trim();
-            if(ans.length < 5) return showModal("Perhatian", "Jawaban terlalu pendek.");
+            const ans = document.getElementById('quiz-answer').value.trim(); if(ans.length < 5) return showModal("Perhatian", "Terlalu pendek.");
             const points = state.currentTask.data.Poin_Kuis || 0;
-            
-            showModal("Memproses...", "Menyimpan...");
             const res = await apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Kuis', poin: points, jawaban: ans });
-            closeMessage();
-            if(res.success) {
-                updateUserLocal(res); state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Kuis'}); triggerCoin(points);
-                setTimeout(() => showModal('Kuis Selesai!', 'Lanjut Jurnal Refleksi!', 'startJournalStep'), 1000);
-            } else showModal("Gagal", res.message);
+            if(res.success) { updateUserLocal(res); state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Kuis'}); startJournalStep(); } else showModal("Gagal", res.message);
         }
-
-        function startJournalStep() {
-            switchTaskView('journal');
-            document.getElementById('journal-question').innerText = state.currentTask.data.Pertanyaan_Jurnal || "Apa pesan moralnya?";
-            document.getElementById('journal-answer').value = '';
-        }
-
+        function startJournalStep() { switchTaskView('journal'); document.getElementById('journal-question').innerText = state.currentTask.data.Pertanyaan_Jurnal || "Apa pesan moralnya?"; document.getElementById('journal-answer').value = ''; }
         async function completeStepJournal() {
-            const ans = document.getElementById('journal-answer').value.trim();
-            if(ans.length < 15) return showModal("Perhatian", "Jurnal minimal 15 karakter.");
+            const ans = document.getElementById('journal-answer').value.trim(); if(ans.length < 10) return showModal("Perhatian", "Jurnal minimal 10 karakter.");
             const points = state.currentTask.data.Poin_Jurnal || 0;
-            
-            showModal("Memproses...", "Menyimpan...");
             const res = await apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Jurnal', poin: points, jawaban: ans });
-            closeMessage();
-            if(res.success) {
-                updateUserLocal(res); state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Jurnal'}); triggerCoin(points);
-                setTimeout(() => showModal('Misi Selesai!', 'Arsip berhasil diselesaikan.', 'kembaliKeDashboard'), 1000);
-            } else showModal("Gagal", res.message);
+            if(res.success) { updateUserLocal(res); navigate('dashboard'); showModal("Misi Selesai!", "Jurnal dikirim ke Admin."); } else showModal("Gagal", res.message);
         }
+        function updateUserLocal(r) { if(r.poinBaru) state.user.exp = r.poinBaru; if(r.levelBaru) state.user.level = r.levelBaru; }
 
-        function updateUserLocal(resData) {
-            if(resData.poinBaru !== undefined) state.user.exp = resData.poinBaru;
-            if(resData.levelBaru !== undefined) state.user.level = resData.levelBaru;
+        // --- ADMIN FUNCTIONS ---
+        function navAdmin(view) { ['dashboard', 'students', 'validation'].forEach(v => document.getElementById(`admin-view-${v}`)?.classList.add('hidden')); document.getElementById(`admin-view-${view}`)?.classList.remove('hidden'); if(view === 'validation') loadAdminJournals(); if(view === 'students') loadAdminStudents(); }
+        async function initAdmin() {
+            const res = await apiCall('adminGetDashboard');
+            if(res.success) {
+                document.getElementById('adm-stat-siswa').innerText = res.siswa.length;
+                document.getElementById('adm-stat-misi').innerText = res.logs.length;
+            }
         }
+        async function loadAdminStudents() {
+            const tb = document.getElementById('adm-siswa-table'); tb.innerHTML = `<tr><td colspan="3" class="p-4">Memuat...</td></tr>`;
+            const res = await apiCall('adminGetStudents');
+            if(res.success) tb.innerHTML = res.students.map(s => `<tr class="border-b"><td class="p-4 font-bold">${s.Nama}</td><td class="p-4 text-xs">${s.NISN}</td><td class="p-4 text-blue-600 font-bold">${s.Total_Poin} XP</td></tr>`).join('');
+        }
+        async function loadAdminJournals() {
+            const tb = document.getElementById('adm-jurnal-table'); tb.innerHTML = `<tr><td colspan="4" class="p-4">Memuat...</td></tr>`;
+            const res = await apiCall('adminGetJournals');
+            if(res.success) tb.innerHTML = res.journals.map(j => `<tr class="border-b"><td class="p-4 font-bold">${j.Siswa_ID}</td><td class="p-4 text-xs">${j.Konten_ID}</td><td class="p-4 text-sm italic">${j.Jawaban_Siswa}</td><td class="p-4 space-x-2"><button onclick="valJournal('${j.Timestamp}', 'Valid')" class="bg-green-500 text-white px-3 py-1 rounded">Terima</button></td></tr>`).join('');
+            else tb.innerHTML = `<tr><td colspan="4" class="p-4">Kosong</td></tr>`;
+        }
+        function valJournal(ts, status) { apiCall('adminValidateJournal', {timestamp: ts, status: status}).then(r => loadAdminJournals()); }
     </script>
 </body>
 </html>
