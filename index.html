@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPARK V3 - The Archive Explorers</title>
     
-    <!-- PWA Manifest & Meta -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1025">
 
@@ -13,7 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Library Barcode Scanner -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
     <script>
@@ -38,7 +36,7 @@
         .card-img-wrapper { height: 160px; overflow: hidden; border-radius: 0.75rem 0.75rem 0 0; position: relative;}
         .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
         .card-hover:hover img { transform: scale(1.05); }
-        @media print { body { background: white; color: black; } nav, footer, .no-print { display: none !important; } .bg-white { box-shadow: none; border: 1px solid #ccc; } }
+        .story-book { background: #fffcf2; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body class="bg-stars">
@@ -56,7 +54,7 @@
     </div>
     <div id="coinAnim" class="coin-popup"><i class="fa-solid fa-star"></i> <span id="coinValue" class="text-3xl">+50</span></div>
 
-    <!-- ==================== LOGIN VIEW DENGAN SCANNER ==================== -->
+    <!-- ==================== LOGIN VIEW ==================== -->
     <main id="view-login" class="flex items-center justify-center fade-in min-h-[80vh]">
         <div class="glass-panel p-8 rounded-3xl border-2 border-spark-blue shadow-[0_0_30px_rgba(56,189,248,0.2)] max-w-md w-full mx-4 text-center">
             <div class="text-6xl text-spark-orange mb-4 animate-bounce"><i class="fa-solid fa-rocket"></i></div>
@@ -97,7 +95,6 @@
                         <span class="absolute top-8 right-0 bg-space-800 text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap border border-space-600">Ada antrean offline, ketuk saat sinyal stabil!</span>
                     </button>
                     <button onclick="navigate('dashboard')" class="text-gray-300 hover:text-spark-blue transition"><i class="fa-solid fa-house text-xl"></i></button>
-                    <button onclick="navigate('library')" class="text-gray-300 hover:text-spark-blue transition"><i class="fa-solid fa-book-journal-whills text-xl"></i></button>
                     <button onclick="doLogout()" class="text-red-400 hover:text-red-300 transition ml-2 border-l border-space-600 pl-4"><i class="fa-solid fa-right-from-bracket text-xl"></i></button>
                 </div>
             </div>
@@ -121,18 +118,9 @@
                 </div>
             </div>
 
-            <!-- PERPUSTAKAAN SISWA -->
-            <div id="view-student-library" class="hidden space-y-6 fade-in">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4 bg-space-800 p-4 rounded-2xl border border-space-600">
-                    <h2 class="text-2xl font-bold"><i class="fa-solid fa-book-open text-spark-blue mr-2"></i> Arsip Data</h2>
-                    <input type="text" id="lib-search" placeholder="Cari arsip..." class="bg-space-900 border border-space-600 rounded-lg px-4 py-2 w-full md:w-64 focus:border-spark-blue focus:outline-none" onkeyup="filterLibrary()">
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" id="library-grid"></div>
-            </div>
-
-            <!-- FULLSCREEN READER & TASK FLOW -->
+            <!-- TASK FLOW (MEMBACA -> KUIS -> JURNAL) -->
             <div id="view-student-task-flow" class="hidden fade-in max-w-4xl mx-auto">
-                <button onclick="navigate('dashboard')" class="text-gray-400 hover:text-white mb-4 transition font-bold"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali</button>
+                <button onclick="navigate('dashboard'); clearInterval(state.timer);" class="text-gray-400 hover:text-white mb-4 transition font-bold"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali / Batalkan</button>
                 <div class="bg-white text-space-900 rounded-3xl overflow-hidden shadow-2xl">
                     <div class="bg-gray-100 px-6 py-3 border-b flex justify-between items-center text-sm font-bold text-gray-500" id="task-breadcrumbs">
                         <span id="bc-reading" class="text-spark-blue"><i class="fa-solid fa-book-open"></i> 1. Membaca</span>
@@ -142,15 +130,47 @@
                         <span id="bc-journal"><i class="fa-solid fa-pen-nib"></i> 3. Jurnal</span>
                     </div>
                     
-                    <div id="step-reading" class="p-6 md:p-10 bg-white relative">
-                        <h2 class="text-2xl font-bold mb-4" id="fs-read-title">Judul Bacaan</h2>
-                        <div id="fs-read-content" class="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-6"></div>
-                        <div class="flex justify-between items-center bg-gray-100 p-4 rounded-xl border">
+                    <!-- BACAAN UMUM & AI STORY READER -->
+                    <div id="step-reading" class="p-0 bg-gray-50 relative">
+                        <!-- Tampilan untuk Bacaan Biasa -->
+                        <div id="standard-reader" class="hidden p-6 md:p-10">
+                            <h2 class="text-2xl font-bold mb-4" id="fs-read-title">Judul Bacaan</h2>
+                            <div id="fs-read-content" class="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-6"></div>
+                        </div>
+
+                        <!-- Tampilan Khusus Cerita AI (Interaktif) -->
+                        <div id="ai-reader" class="hidden p-4 md:p-8 flex flex-col items-center">
+                            <div class="story-book w-full max-w-2xl p-6 md:p-8 flex flex-col items-center relative">
+                                <div class="absolute top-4 right-4 bg-spark-gold text-space-900 text-xs font-black px-3 py-1 rounded-full shadow">Halaman <span id="ai-page-num">1</span>/10</div>
+                                <h2 class="text-2xl font-black text-center text-gray-800 mb-6 font-serif" id="ai-story-title">Judul Cerita</h2>
+                                
+                                <div class="w-full h-64 md:h-80 bg-gray-200 rounded-xl overflow-hidden mb-6 shadow-inner border-2 border-gray-300 flex items-center justify-center relative">
+                                    <div id="ai-img-loading" class="absolute flex flex-col items-center text-gray-400"><i class="fa-solid fa-palette fa-spin text-3xl mb-2"></i><p class="text-xs font-bold">Menggambar...</p></div>
+                                    <img id="ai-story-img" class="w-full h-full object-cover z-10 hidden" onload="this.classList.remove('hidden'); document.getElementById('ai-img-loading').classList.add('hidden')">
+                                </div>
+                                
+                                <p id="ai-story-text" class="text-lg md:text-xl text-gray-800 leading-relaxed mb-8 text-center font-serif min-h-[150px]"></p>
+                                
+                                <div id="ai-choices" class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 hidden mb-4">
+                                    <button onclick="aiStoryChoice('a')" class="bg-spark-blue hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow transition" id="ai-btn-a">Pilihan A</button>
+                                    <button onclick="aiStoryChoice('b')" class="bg-spark-orange hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl shadow transition" id="ai-btn-b">Pilihan B</button>
+                                </div>
+
+                                <div class="flex justify-between w-full mt-auto" id="ai-nav-btns">
+                                    <button onclick="aiStoryNav(-1)" id="ai-btn-prev" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full shadow hidden"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali</button>
+                                    <button onclick="aiStoryNav(1)" id="ai-btn-next" class="bg-space-800 hover:bg-space-600 text-white font-bold py-2 px-6 rounded-full shadow ml-auto">Lanjut <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Waktu Membaca -->
+                        <div class="flex justify-between items-center bg-gray-200 p-4 border-t border-gray-300">
                             <span id="fs-read-timer" class="font-mono font-bold text-gray-600">00:00 / 05:00</span>
-                            <button id="btn-fs-finish" onclick="completeStepReading()" disabled class="bg-gray-400 text-white font-bold py-2 px-6 rounded-xl cursor-not-allowed transition">SELESAI MEMBACA</button>
+                            <button id="btn-fs-finish" onclick="completeStepReading()" disabled class="bg-gray-400 text-white font-bold py-2 px-6 rounded-xl cursor-not-allowed transition">TUGAS SELESAI</button>
                         </div>
                     </div>
 
+                    <!-- KUIS & JURNAL -->
                     <div id="step-quiz" class="hidden p-6 md:p-10 bg-gray-50">
                         <h2 class="text-3xl font-black text-space-900 mb-4 text-center">Uji Pemahaman</h2>
                         <p class="text-lg font-bold mb-4 text-gray-800" id="quiz-question">Pertanyaan?</p>
@@ -169,7 +189,7 @@
         </main>
     </div>
 
-    <!-- ==================== ADMIN INTERFACE (100% DIKEMBALIKAN) ==================== -->
+    <!-- ==================== ADMIN INTERFACE ==================== -->
     <div id="app-admin" class="hidden flex-col min-h-screen bg-gray-100 text-gray-800">
         <nav class="bg-space-900 text-white shadow-md z-40 sticky top-0">
             <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center h-auto md:h-16 py-2">
@@ -180,6 +200,7 @@
                     <button onclick="navAdmin('dashboard')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-chart-line"></i> Dasbor</button>
                     <button onclick="navAdmin('students')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-users"></i> Siswa</button>
                     <button onclick="navAdmin('validation')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-check-double"></i> Validasi Jurnal</button>
+                    <button onclick="navAdmin('ai-creator')" class="bg-spark-blue text-space-900 hover:bg-blue-500 px-3 py-2 rounded font-bold transition"><i class="fa-solid fa-wand-magic-sparkles"></i> Studio AI</button>
                     <button onclick="doLogout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold transition ml-2">Keluar</button>
                 </div>
             </div>
@@ -195,152 +216,124 @@
                 </div>
             </div>
 
-            <!-- ADMIN STUDENTS CRUD -->
-            <div id="admin-view-students" class="hidden space-y-6 fade-in">
-                <div class="flex justify-between items-center"><h1 class="text-3xl font-black text-space-900">Data Siswa</h1></div>
-                <div class="bg-white rounded-2xl shadow overflow-hidden">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-space-900 text-white"><tr><th class="p-4">Nama Siswa</th><th class="p-4">NISN</th><th class="p-4">Statistik</th></tr></thead>
-                        <tbody id="adm-siswa-table"></tbody>
-                    </table>
+            <!-- ADMIN AI CREATOR -->
+            <div id="admin-view-ai-creator" class="hidden space-y-6 fade-in">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="bg-spark-blue p-3 rounded-xl"><i class="fa-solid fa-robot text-2xl text-space-900"></i></div>
+                    <div><h1 class="text-3xl font-black text-space-900">Studio Cerita AI</h1><p class="text-gray-500">Buat buku interaktif 10 halaman beserta ilustrasinya otomatis.</p></div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Form AI -->
+                    <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-spark-blue">
+                        <h3 class="font-bold text-lg mb-4">1. Konsep Cerita</h3>
+                        <textarea id="ai-prompt" rows="4" class="w-full border rounded-xl p-4 mb-4 text-gray-800 focus:border-spark-blue focus:outline-none" placeholder="Tuliskan ide ceritanya... (Contoh: Cerita petualangan Budi ke luar angkasa bertemu alien ramah yang mengajarkan pentingnya menjaga kebersihan)"></textarea>
+                        
+                        <div class="mb-6 p-4 bg-gray-50 rounded-xl border">
+                            <h4 class="font-bold text-sm mb-2">Tipe Interaksi Cerita:</h4>
+                            <label class="flex items-center gap-2 cursor-pointer mb-2">
+                                <input type="radio" name="ai-branching" value="false" checked class="w-5 h-5 text-spark-blue"> Lurus (10 Halaman linear)
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="ai-branching" value="true" class="w-5 h-5 text-spark-blue"> Percabangan (Siswa memilih jalan di Hal 6, 2 Akhir Berbeda)
+                            </label>
+                        </div>
+                        
+                        <button onclick="generateAIStoryAdmin()" id="btn-generate-ai" class="w-full bg-space-800 hover:bg-space-600 text-white font-bold py-3 rounded-xl shadow transition"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> GENERATE CERITA & ILUSTRASI</button>
+                    </div>
+
+                    <!-- Form Publish (Muncul setelah Generate sukses) -->
+                    <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-spark-gold opacity-50 pointer-events-none transition-all" id="ai-publish-panel">
+                        <h3 class="font-bold text-lg mb-4">2. Pengaturan Misi & Terbitkan</h3>
+                        <div class="space-y-4">
+                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Judul Misi</label><input type="text" id="ai-save-judul" class="w-full border rounded-lg px-4 py-2"></div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Tanggal Bisa Dibuka</label><input type="date" id="ai-save-rilis" class="w-full border rounded-lg px-4 py-2"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Min Waktu (Menit)</label><input type="number" id="ai-save-waktu" value="5" class="w-full border rounded-lg px-4 py-2"></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label class="block text-xs font-bold text-gray-700 mb-1">Poin Baca</label><input type="number" id="ai-save-pb" value="100" class="w-full border rounded-lg px-2 py-1"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 mb-1">Poin Kuis</label><input type="number" id="ai-save-pk" value="100" class="w-full border rounded-lg px-2 py-1"></div>
+                                <div><label class="block text-xs font-bold text-gray-700 mb-1">Poin Jurnal</label><input type="number" id="ai-save-pj" value="100" class="w-full border rounded-lg px-2 py-1"></div>
+                            </div>
+                            <textarea id="ai-save-kuis" rows="2" class="w-full border rounded-lg p-2 text-sm" placeholder="Pertanyaan Kuis..."></textarea>
+                            <textarea id="ai-save-jurnal" rows="2" class="w-full border rounded-lg p-2 text-sm" placeholder="Pertanyaan Jurnal..."></textarea>
+                            <button onclick="saveAIStoryToDB()" class="w-full bg-spark-gold text-space-900 font-black py-3 rounded-xl shadow hover:bg-yellow-500">SIMPAN KE DATABASE</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- ADMIN VALIDATION -->
-            <div id="admin-view-validation" class="hidden space-y-6 fade-in">
-                <h1 class="text-3xl font-black text-space-900">Validasi Jurnal Pending</h1>
-                <div class="bg-white rounded-2xl shadow overflow-hidden">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-space-900 text-white"><tr><th class="p-4">Siswa</th><th class="p-4">Konten</th><th class="p-4">Isi Jurnal</th><th class="p-4 text-center">Aksi</th></tr></thead>
-                        <tbody id="adm-jurnal-table"></tbody>
-                    </table>
-                </div>
-            </div>
+            <!-- ADMIN STUDENTS & VALIDATION (Singkat) -->
+            <div id="admin-view-students" class="hidden space-y-6 fade-in"><div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-space-900 text-white"><tr><th class="p-4">Nama Siswa</th><th class="p-4">NISN</th><th class="p-4">Statistik</th></tr></thead><tbody id="adm-siswa-table"></tbody></table></div></div>
+            <div id="admin-view-validation" class="hidden space-y-6 fade-in"><div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-space-900 text-white"><tr><th class="p-4">Siswa</th><th class="p-4">Konten</th><th class="p-4">Isi Jurnal</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="adm-jurnal-table"></tbody></table></div></div>
         </main>
     </div>
 
     <!-- ==================== SCRIPT LOGIC ==================== -->
     <script>
         // PWA REGISTRATION
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
-        }
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
 
         // KONEKSI DATABASE BAPAK
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw8_AMUcTXWhX57qdniEPlvH7Kj1r7lc0axKD2tjLJgfnFenbHZhE5rmWvRnks53XIY/exec"; 
 
         let state = { user: null, userLogs: [], contentData: { misi: [], perpustakaan: [] }, currentTask: { type: null, data: null, currentStep: null }, timer: null, timeSpent: 0 };
+        
+        // State Khusus AI Story Reader
+        let aiStoryState = { json: null, currentPageId: "1", isBranching: false, path: "" };
+        // State Khusus Admin AI Generator
+        let generatedAIStoryData = null; 
 
-        // 1. FUNGSI LOGIN (SUDAH DIPERBAIKI UNTUK ADMIN DAN SISWA)
+        // 1. API CALL (OFFLINE INTERCEPTOR)
+        async function apiCall(action, payloadData = {}) {
+            if (!navigator.onLine && action === 'saveActivity') {
+                let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
+                queue.push({ action, data: payloadData, timestamp: Date.now() });
+                localStorage.setItem('sparkOfflineQueue', JSON.stringify(queue)); updateSyncIndicator();
+                let tPoin = parseInt(payloadData.poin) || 0; return { success: true, message: "Disimpan di Ransel Offline!", poinBaru: state.user.exp + tPoin, levelBaru: Math.floor((state.user.exp + tPoin)/1000)+1 };
+            }
+            try { const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action, data: payloadData }) }); return await res.json(); } catch (err) { return { success: false, message: err.message }; }
+        }
+
+        // 2. SCANNER & SYNC
+        let html5QrcodeScanner;
+        function startScanner() { const readerEl = document.getElementById('reader'); readerEl.classList.remove('hidden'); if(!html5QrcodeScanner) html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false); html5QrcodeScanner.render((txt) => { document.getElementById('loginUsername').value = txt; document.getElementById('loginPassword').value = ''; html5QrcodeScanner.clear(); readerEl.classList.add('hidden'); login('student'); }, (err) => {}); }
+        function updateSyncIndicator() { const ind = document.getElementById('sync-indicator'); JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]').length > 0 ? ind.classList.remove('hidden') : ind.classList.add('hidden'); }
+        window.addEventListener('online', syncOfflineData);
+        async function syncOfflineData() { let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]'); if (queue.length === 0) return; document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-xl"></i>'; for (let task of queue) { try { await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: task.action, data: task.data }) }); } catch(e) {} } localStorage.removeItem('sparkOfflineQueue'); document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-xl"></i>'; updateSyncIndicator(); }
+        document.addEventListener("DOMContentLoaded", updateSyncIndicator);
+
+        // 3. UTILS & UI
+        function showModal(title, text) { document.getElementById('messageTitle').innerText = title; document.getElementById('messageText').innerText = text; document.getElementById('messageModal').classList.remove('hidden'); }
+        function closeMessage() { document.getElementById('messageModal').classList.add('hidden'); }
+        function triggerCoin(val) { const el = document.getElementById('coinAnim'); document.getElementById('coinValue').innerText = "+" + val; el.classList.remove('active'); void el.offsetWidth; el.classList.add('active'); }
+        function doLogout() { state.user = null; document.getElementById('app-student').classList.add('hidden'); document.getElementById('app-admin').classList.add('hidden'); document.getElementById('view-login').classList.remove('hidden'); }
+
+        // 4. LOGIN & STUDENT UI
         async function login(role) {
-            const username = document.getElementById('loginUsername').value;
-            const pass = document.getElementById('loginPassword').value;
+            const user = document.getElementById('loginUsername').value; const pass = document.getElementById('loginPassword').value;
             const btn = role === 'student' ? document.getElementById('btn-login-std') : document.getElementById('btn-login-adm');
-            
-            if(!username) return showModal("Error", "Mohon isi kelengkapan data (Scan QR atau Ketik).");
-            
-            const origText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`; btn.disabled = true;
-
-            const actionName = role === 'admin' ? 'loginAdmin' : 'login';
-            const payload = role === 'admin' ? {username: username, password: pass} : {nisn: username, password: pass};
-            
-            const res = await apiCall(actionName, payload);
-            btn.innerHTML = origText; btn.disabled = false;
-
+            if(!user) return showModal("Error", "Isi data login.");
+            const orig = btn.innerHTML; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`; btn.disabled = true;
+            const res = await apiCall(role === 'admin' ? 'loginAdmin' : 'login', role === 'admin' ? {username: user, password: pass} : {nisn: user, password: pass});
+            btn.innerHTML = orig; btn.disabled = false;
             if(res.success) {
-                document.getElementById('view-login').classList.add('hidden');
-                document.getElementById('loginUsername').value = ''; document.getElementById('loginPassword').value = '';
-                
-                if(role === 'admin') {
-                    // Masuk UI Admin
-                    document.getElementById('app-admin').classList.remove('hidden');
-                    document.getElementById('app-admin').classList.add('flex');
-                    navAdmin('dashboard'); 
-                    initAdmin();
-                } else {
-                    // Masuk UI Siswa
-                    state.user = res.user; state.userLogs = res.logs || [];
-                    document.getElementById('app-student').classList.remove('hidden');
-                    document.getElementById('app-student').classList.add('flex');
-                    navigate('dashboard');
-                    
-                    // Tarik Konten dan simpan ke Ransel Offline
-                    apiCall('getContent').then(r => { 
-                        if(r.success) { 
-                            state.contentData = r; 
-                            localStorage.setItem('sparkContentCache', JSON.stringify(r)); 
-                            renderStudentUI(); 
-                        }
-                    }).catch(err => {
-                        let cached = localStorage.getItem('sparkContentCache');
-                        if (cached) { state.contentData = JSON.parse(cached); renderStudentUI(); showModal("Mode Offline Aktif", "Menggunakan arsip materi tersimpan."); }
-                    });
+                document.getElementById('view-login').classList.add('hidden'); document.getElementById('loginUsername').value = ''; document.getElementById('loginPassword').value = '';
+                if(role === 'admin') { document.getElementById('app-admin').classList.remove('hidden'); document.getElementById('app-admin').classList.add('flex'); navAdmin('dashboard'); initAdmin(); } 
+                else {
+                    state.user = res.user; state.userLogs = res.logs || []; document.getElementById('app-student').classList.remove('hidden'); document.getElementById('app-student').classList.add('flex'); navigate('dashboard');
+                    apiCall('getContent').then(r => { if(r.success) { state.contentData = r; localStorage.setItem('sparkContentCache', JSON.stringify(r)); renderStudentUI(); } }).catch(e => { let c = localStorage.getItem('sparkContentCache'); if(c) { state.contentData = JSON.parse(c); renderStudentUI(); showModal("Mode Offline", "Menggunakan arsip materi tersimpan."); } });
                     renderStudentUI();
                 }
             } else { showModal("Gagal", res.message); }
         }
 
-        // 2. OFFLINE QUEUE INTERCEPTOR
-        async function apiCall(action, payloadData = {}) {
-            if (!navigator.onLine) {
-                if (action === 'saveActivity') {
-                    let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
-                    queue.push({ action, data: payloadData, timestamp: Date.now() });
-                    localStorage.setItem('sparkOfflineQueue', JSON.stringify(queue));
-                    updateSyncIndicator();
-                    let tambahPoin = parseInt(payloadData.poin) || 0;
-                    return { success: true, message: "Disimpan di Ransel Offline!", poinBaru: state.user.exp + tambahPoin, levelBaru: Math.floor((state.user.exp + tambahPoin)/1000)+1 };
-                } else { return { success: false, message: "Koneksi terputus. Fitur ini butuh internet." }; }
-            }
-            try {
-                const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action, data: payloadData }) });
-                return await res.json();
-            } catch (err) { return { success: false, message: err.message }; }
-        }
-
-        // 3. SCANNER LOGIC
-        let html5QrcodeScanner;
-        function startScanner() {
-            const readerEl = document.getElementById('reader'); readerEl.classList.remove('hidden');
-            if(!html5QrcodeScanner) html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-            html5QrcodeScanner.render((decodedText) => {
-                document.getElementById('loginUsername').value = decodedText; document.getElementById('loginPassword').value = '';
-                html5QrcodeScanner.clear(); readerEl.classList.add('hidden'); login('student');
-            }, (error) => {});
-        }
-
-        // 4. SINKRONISASI LOGIC
-        function updateSyncIndicator() {
-            let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
-            const indicator = document.getElementById('sync-indicator');
-            if (queue.length > 0) indicator.classList.remove('hidden'); else indicator.classList.add('hidden');
-        }
-        window.addEventListener('online', syncOfflineData);
-        async function syncOfflineData() {
-            let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
-            if (queue.length === 0) return;
-            showModal("Sinyal Ditemukan!", "Menyinkronkan ransel arsip ke markas pusat...");
-            document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-xl"></i>';
-            for (let i = 0; i < queue.length; i++) {
-                try { await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: queue[i].action, data: queue[i].data }) }); } catch(e) {}
-            }
-            localStorage.removeItem('sparkOfflineQueue');
-            document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-xl"></i>';
-            updateSyncIndicator(); setTimeout(() => closeMessage(), 1500);
-        }
-        document.addEventListener("DOMContentLoaded", updateSyncIndicator);
-
-        // --- UI UTILS & STUDENT FLOW (Tetap Sama) ---
-        function showModal(title, text) { document.getElementById('messageTitle').innerText = title; document.getElementById('messageText').innerText = text; document.getElementById('messageModal').classList.remove('hidden'); }
-        function closeMessage() { document.getElementById('messageModal').classList.add('hidden'); }
-        function doLogout() { state.user = null; document.getElementById('app-student').classList.add('hidden'); document.getElementById('app-admin').classList.add('hidden'); document.getElementById('view-login').classList.remove('hidden'); }
         function navigate(view) { ['dashboard', 'library', 'task-flow'].forEach(v => document.getElementById(`view-student-${v}`)?.classList.add('hidden')); document.getElementById(`view-student-${view}`)?.classList.remove('hidden'); if(view === 'dashboard') renderStudentUI(); }
-        
         function renderStudentUI() {
             if(!state.user) return;
             document.getElementById('std-name').innerText = state.user.nama; document.getElementById('std-level-num').innerText = state.user.level; document.getElementById('std-exp-current').innerText = state.user.exp;
-            let pct = Math.min((state.user.exp / (state.user.level * 1000)) * 100, 100); setTimeout(() => document.getElementById('std-exp-bar').style.width = pct + '%', 100);
+            setTimeout(() => document.getElementById('std-exp-bar').style.width = Math.min((state.user.exp / (state.user.level * 1000)) * 100, 100) + '%', 100);
             if(state.contentData.misi.length > 0) document.getElementById('mission-grid').innerHTML = state.contentData.misi.map(m => createCard(m, 'Misi')).join('');
             renderLibraryItems(state.contentData.perpustakaan);
         }
@@ -348,20 +341,99 @@
         function filterLibrary() { const q = document.getElementById('lib-search').value.toLowerCase(); renderLibraryItems((state.contentData.perpustakaan || []).filter(b => b.Judul.toLowerCase().includes(q))); }
         
         function createCard(data, type) {
-            let imgUrl = data.Thumbnail_URL || 'https://via.placeholder.com/400x200/2d1b4e/ffffff?text=Arsip';
             let totalPoin = (Number(data.Poin_Baca)||0) + (Number(data.Poin_Kuis)||0) + (Number(data.Poin_Jurnal)||0);
-            let time = data.Min_Waktu_Baca_Menit || 5;
             let badge = state.userLogs.some(l => l.kontenId === data.ID && l.tahap === 'Membaca') ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded shadow"><i class="fa-solid fa-check"></i> Dibaca</div>` : '';
-            return `<div class="bg-space-800 rounded-2xl border border-space-600 overflow-hidden flex flex-col card-hover cursor-pointer" onclick="initTask('${type}', '${data.ID}')"><div class="card-img-wrapper">${badge}<div class="absolute top-2 left-2 bg-space-900/80 backdrop-blur text-spark-gold text-xs font-bold px-2 py-1 rounded"><i class="fa-solid fa-star"></i> ${totalPoin} XP</div><img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x200/2d1b4e/ffffff?text=No+Image'"></div><div class="p-4 flex flex-col flex-grow"><h4 class="text-lg font-bold mb-3">${data.Judul}</h4><div class="mt-auto flex justify-between items-center text-xs text-gray-400"><span><i class="fa-regular fa-clock"></i> ${time} Mnt</span><span class="bg-space-600 px-2 py-1 rounded text-white">${type}</span></div></div></div>`;
+            
+            // LOGIKA BATAS WAKTU (WAKTU RILIS)
+            let isLocked = false; let lockMsg = '';
+            if (data.Waktu_Rilis && type === 'Misi') {
+                let rilisDate = new Date(data.Waktu_Rilis);
+                // Set rilis date to start of day
+                rilisDate.setHours(0,0,0,0);
+                if (new Date() < rilisDate) { 
+                    isLocked = true; 
+                    lockMsg = `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-20 backdrop-blur-sm"><i class="fa-solid fa-lock text-3xl mb-2 text-red-400"></i><span class="text-xs font-bold text-center px-2">Terkunci hingga<br>${rilisDate.toLocaleDateString('id-ID')}</span></div>`; 
+                }
+            }
+
+            let clickAction = isLocked ? `showModal('Akses Ditolak', 'Misi ini baru bisa dibuka pada ${new Date(data.Waktu_Rilis).toLocaleDateString('id-ID')}')` : `initTask('${type}', '${data.ID}')`;
+            let isAi = data.Kategori === 'Cerita AI';
+            let iconType = isAi ? '<i class="fa-solid fa-wand-magic-sparkles text-spark-blue"></i> AI Story' : type;
+            let imgUrl = data.Thumbnail_URL || (isAi ? 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=400&q=80' : 'https://via.placeholder.com/400x200/2d1b4e/ffffff?text=Arsip');
+
+            return `<div class="bg-space-800 rounded-2xl border border-space-600 overflow-hidden flex flex-col ${isLocked ? '' : 'card-hover cursor-pointer'} relative" onclick="${clickAction}"><div class="card-img-wrapper">${badge}${lockMsg}<div class="absolute top-2 left-2 bg-space-900/80 backdrop-blur text-spark-gold text-xs font-bold px-2 py-1 rounded z-10"><i class="fa-solid fa-star"></i> ${totalPoin} XP</div><img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x200/2d1b4e/ffffff?text=No+Image'"></div><div class="p-4 flex flex-col flex-grow"><p class="text-xs text-spark-blue font-bold mb-1">${data.Kategori}</p><h4 class="text-lg font-bold mb-3 line-clamp-2">${data.Judul}</h4><div class="mt-auto flex justify-between items-center text-xs text-gray-400"><span><i class="fa-regular fa-clock"></i> ${data.Min_Waktu_Baca_Menit || 5} Mnt</span><span class="bg-space-600 px-2 py-1 rounded text-white font-bold">${iconType}</span></div></div></div>`;
         }
 
+        // 5. TASK FLOW & AI READER
         function initTask(type, contentId) {
             const arr = type === 'Misi' ? state.contentData.misi : state.contentData.perpustakaan;
             state.currentTask.data = arr.find(x => x.ID === contentId); state.currentTask.type = type;
+            
             document.getElementById('fs-read-title').innerText = state.currentTask.data.Judul;
-            document.getElementById('fs-read-content').innerHTML = state.currentTask.data.Teks_Bacaan || "Arsip kosong";
+            document.getElementById('ai-story-title').innerText = state.currentTask.data.Judul;
+            
+            // Cek apakah ini Cerita AI JSON atau Teks Biasa
+            let isAiStory = state.currentTask.data.Kategori === 'Cerita AI';
+            if (isAiStory) {
+                document.getElementById('standard-reader').classList.add('hidden');
+                document.getElementById('ai-reader').classList.remove('hidden');
+                try {
+                    aiStoryState.json = JSON.parse(state.currentTask.data.Teks_Bacaan);
+                    aiStoryState.currentPageId = "1";
+                    aiStoryState.path = "";
+                    renderAiStoryPage();
+                } catch(e) { showModal("Error", "Format cerita AI rusak."); return; }
+            } else {
+                document.getElementById('ai-reader').classList.add('hidden');
+                document.getElementById('standard-reader').classList.remove('hidden');
+                document.getElementById('fs-read-content').innerHTML = state.currentTask.data.Teks_Bacaan || "Arsip kosong";
+            }
+
             navigate('task-flow'); startReadingStep();
         }
+
+        function renderAiStoryPage() {
+            let pageData = aiStoryState.json.pages.find(p => p.id === aiStoryState.currentPageId);
+            if(!pageData) return;
+            
+            // Set Text & Image
+            document.getElementById('ai-story-text').innerText = pageData.text;
+            document.getElementById('ai-img-loading').classList.remove('hidden');
+            let imgEl = document.getElementById('ai-story-img');
+            imgEl.classList.add('hidden');
+            // Gunakan pollinations.ai untuk generate gambar dari prompt
+            imgEl.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(pageData.img_prompt + ", colorful children book illustration style, detailed")}?width=800&height=400&nologo=true`;
+            
+            // Navigasi & Percabangan
+            document.getElementById('ai-page-num').innerText = aiStoryState.currentPageId.replace(/[ab]/g, '');
+            let isBranchingPage = pageData.id === "6" && pageData.choice_a;
+            let isEndPage = pageData.id === "10" || pageData.id === "10a" || pageData.id === "10b";
+
+            document.getElementById('ai-choices').classList.toggle('hidden', !isBranchingPage);
+            document.getElementById('ai-nav-btns').classList.toggle('hidden', isBranchingPage);
+            
+            if(isBranchingPage) {
+                document.getElementById('ai-btn-a').innerText = pageData.choice_a;
+                document.getElementById('ai-btn-b').innerText = pageData.choice_b;
+            }
+
+            document.getElementById('ai-btn-prev').classList.toggle('hidden', pageData.id === "1");
+            document.getElementById('ai-btn-next').classList.toggle('hidden', isEndPage);
+        }
+
+        function aiStoryChoice(choice) {
+            aiStoryState.path = choice; // 'a' atau 'b'
+            aiStoryState.currentPageId = "7" + choice;
+            renderAiStoryPage();
+        }
+
+        function aiStoryNav(dir) {
+            let currentNum = parseInt(aiStoryState.currentPageId);
+            let nextNum = currentNum + dir;
+            aiStoryState.currentPageId = nextNum.toString() + aiStoryState.path;
+            renderAiStoryPage();
+        }
+
         function switchTaskView(step) { ['reading', 'quiz', 'journal'].forEach(s => document.getElementById(`step-${s}`)?.classList.add('hidden')); document.getElementById(`step-${step}`)?.classList.remove('hidden'); }
         function startReadingStep() {
             switchTaskView('reading'); let minSeconds = (Number(state.currentTask.data.Min_Waktu_Baca_Menit) || 5) * 60; state.timeSpent = 0;
@@ -369,53 +441,103 @@
             clearInterval(state.timer);
             state.timer = setInterval(() => {
                 state.timeSpent++; let m = Math.floor(state.timeSpent/60).toString().padStart(2,'0'); let s = (state.timeSpent%60).toString().padStart(2,'0');
-                timerTxt.innerText = state.timeSpent < minSeconds ? `${m}:${s} / Target: ${Math.floor(minSeconds/60)} Mnt` : `${m}:${s} - Selesai!`;
+                timerTxt.innerText = state.timeSpent < minSeconds ? `${m}:${s} / Target: ${Math.floor(minSeconds/60)} Mnt` : `${m}:${s} - Waktu Cukup!`;
                 if(state.timeSpent === minSeconds) { btn.disabled = false; btn.classList.replace('bg-gray-400', 'bg-spark-blue'); }
             }, 1000);
         }
         function completeStepReading() {
             clearInterval(state.timer); const points = state.currentTask.data.Poin_Baca || 0;
             apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Membaca', poin: points, waktuDetik: state.timeSpent }).then(r => { if(r.success) updateUserLocal(r); });
-            state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Membaca'}); 
+            state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Membaca'}); triggerCoin(points);
             state.currentTask.type === 'Misi' ? startQuizStep() : startJournalStep();
         }
-        function startQuizStep() { switchTaskView('quiz'); document.getElementById('quiz-question').innerText = state.currentTask.data.Pertanyaan_Kuis || "Apa intisarinya?"; document.getElementById('quiz-answer').value = ''; }
+        function startQuizStep() { switchTaskView('quiz'); document.getElementById('quiz-question').innerText = state.currentTask.data.Pertanyaan_Kuis || "Apa yang kamu pelajari?"; document.getElementById('quiz-answer').value = ''; }
         async function completeStepQuiz() {
             const ans = document.getElementById('quiz-answer').value.trim(); if(ans.length < 5) return showModal("Perhatian", "Terlalu pendek.");
             const points = state.currentTask.data.Poin_Kuis || 0;
+            showModal("Loading...", "Menyimpan kuis...");
             const res = await apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Kuis', poin: points, jawaban: ans });
-            if(res.success) { updateUserLocal(res); state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Kuis'}); startJournalStep(); } else showModal("Gagal", res.message);
+            closeMessage(); if(res.success) { updateUserLocal(res); state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Kuis'}); triggerCoin(points); setTimeout(()=>startJournalStep(), 800); } else showModal("Gagal", res.message);
         }
         function startJournalStep() { switchTaskView('journal'); document.getElementById('journal-question').innerText = state.currentTask.data.Pertanyaan_Jurnal || "Apa pesan moralnya?"; document.getElementById('journal-answer').value = ''; }
         async function completeStepJournal() {
-            const ans = document.getElementById('journal-answer').value.trim(); if(ans.length < 10) return showModal("Perhatian", "Jurnal minimal 10 karakter.");
+            const ans = document.getElementById('journal-answer').value.trim(); if(ans.length < 10) return showModal("Perhatian", "Minimal 10 karakter.");
             const points = state.currentTask.data.Poin_Jurnal || 0;
+            showModal("Loading...", "Menyimpan jurnal...");
             const res = await apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Jurnal', poin: points, jawaban: ans });
-            if(res.success) { updateUserLocal(res); navigate('dashboard'); showModal("Misi Selesai!", "Jurnal dikirim ke Admin."); } else showModal("Gagal", res.message);
+            closeMessage(); if(res.success) { updateUserLocal(res); navigate('dashboard'); triggerCoin(points); setTimeout(()=>showModal("Misi Selesai!", "Tugas berhasil dikirim ke Admin."), 800); } else showModal("Gagal", res.message);
         }
         function updateUserLocal(r) { if(r.poinBaru) state.user.exp = r.poinBaru; if(r.levelBaru) state.user.level = r.levelBaru; }
 
-        // --- ADMIN FUNCTIONS ---
-        function navAdmin(view) { ['dashboard', 'students', 'validation'].forEach(v => document.getElementById(`admin-view-${v}`)?.classList.add('hidden')); document.getElementById(`admin-view-${view}`)?.classList.remove('hidden'); if(view === 'validation') loadAdminJournals(); if(view === 'students') loadAdminStudents(); }
-        async function initAdmin() {
-            const res = await apiCall('adminGetDashboard');
-            if(res.success) {
-                document.getElementById('adm-stat-siswa').innerText = res.siswa.length;
-                document.getElementById('adm-stat-misi').innerText = res.logs.length;
+        // 6. ADMIN FUNCTIONS
+        function navAdmin(view) { ['dashboard', 'students', 'validation', 'ai-creator'].forEach(v => document.getElementById(`admin-view-${v}`)?.classList.add('hidden')); document.getElementById(`admin-view-${view}`)?.classList.remove('hidden'); if(view === 'validation') loadAdminJournals(); if(view === 'students') loadAdminStudents(); }
+        async function initAdmin() { const res = await apiCall('adminGetDashboard'); if(res.success) { document.getElementById('adm-stat-siswa').innerText = res.siswa.length; document.getElementById('adm-stat-misi').innerText = res.logs.length; } }
+        async function loadAdminStudents() { const tb = document.getElementById('adm-siswa-table'); tb.innerHTML = `<tr><td colspan="3" class="p-4">Memuat...</td></tr>`; const res = await apiCall('adminGetStudents'); if(res.success) tb.innerHTML = res.students.map(s => `<tr class="border-b"><td class="p-4 font-bold">${s.Nama}</td><td class="p-4 text-xs">${s.NISN}</td><td class="p-4 text-blue-600 font-bold">${s.Total_Poin} XP</td></tr>`).join(''); }
+        async function loadAdminJournals() { const tb = document.getElementById('adm-jurnal-table'); tb.innerHTML = `<tr><td colspan="4" class="p-4">Memuat...</td></tr>`; const res = await apiCall('adminGetJournals'); if(res.success) tb.innerHTML = res.journals.map(j => `<tr class="border-b"><td class="p-4 font-bold">${j.Siswa_ID}</td><td class="p-4 text-xs">${j.Konten_ID}</td><td class="p-4 text-sm italic">${j.Jawaban_Siswa}</td><td class="p-4 space-x-2"><button onclick="valJournal('${j.Timestamp}', 'Valid')" class="bg-green-500 text-white px-3 py-1 rounded">Terima</button></td></tr>`).join(''); else tb.innerHTML = `<tr><td colspan="4" class="p-4">Kosong</td></tr>`; }
+        function valJournal(ts, status) { apiCall('adminValidateJournal', {timestamp: ts, status: status}).then(r => loadAdminJournals()); }
+
+        // 7. STUDIO AI CREATOR ADMIN
+        async function generateAIStoryAdmin() {
+            const prompt = document.getElementById('ai-prompt').value;
+            const isBranching = document.querySelector('input[name="ai-branching"]:checked').value === "true";
+            
+            if(!prompt) return showModal("Error", "Tuliskan ide ceritanya dulu!");
+            
+            const btn = document.getElementById('btn-generate-ai');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles fa-beat mr-2"></i> AI SEDANG MENULIS CERITA... (Tunggu ~10 detik)`;
+            btn.disabled = true;
+
+            const res = await apiCall('generateAIStory', { prompt: prompt, isBranching: isBranching });
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+
+            if (res.success && res.story && res.story.pages) {
+                generatedAIStoryData = res.story;
+                showModal("Berhasil!", "Cerita 10 halaman berhasil dibuat. Silakan lengkapi pengaturan rilis dan simpan.");
+                document.getElementById('ai-publish-panel').classList.remove('opacity-50', 'pointer-events-none');
+                
+                // Set default thumbnail menggunakan prompt gambar halaman 1
+                const firstImgPrompt = res.story.pages[0].img_prompt;
+                window.lastGeneratedThumb = `https://image.pollinations.ai/prompt/${encodeURIComponent(firstImgPrompt)}?width=400&height=200&nologo=true`;
+                document.getElementById('ai-save-judul').value = "Petualangan Seru"; // Bisa diedit user
+            } else {
+                showModal("Gagal", res.message || "Struktur JSON dari AI tidak sesuai, coba lagi.");
             }
         }
-        async function loadAdminStudents() {
-            const tb = document.getElementById('adm-siswa-table'); tb.innerHTML = `<tr><td colspan="3" class="p-4">Memuat...</td></tr>`;
-            const res = await apiCall('adminGetStudents');
-            if(res.success) tb.innerHTML = res.students.map(s => `<tr class="border-b"><td class="p-4 font-bold">${s.Nama}</td><td class="p-4 text-xs">${s.NISN}</td><td class="p-4 text-blue-600 font-bold">${s.Total_Poin} XP</td></tr>`).join('');
+
+        async function saveAIStoryToDB() {
+            if (!generatedAIStoryData) return;
+            
+            const data = {
+                judul: document.getElementById('ai-save-judul').value || "Cerita Tanpa Judul",
+                kategori: "Cerita AI",
+                thumb: window.lastGeneratedThumb || "",
+                teks: JSON.stringify(generatedAIStoryData), // Simpan JSON array ke DB
+                waktu: document.getElementById('ai-save-waktu').value,
+                p_baca: document.getElementById('ai-save-pb').value,
+                p_kuis: document.getElementById('ai-save-pk').value,
+                p_jurnal: document.getElementById('ai-save-pj').value,
+                rilis: document.getElementById('ai-save-rilis').value,
+                t_kuis: document.getElementById('ai-save-kuis').value,
+                k_kuis: "Tidak ada kunci (Esai AI)",
+                t_jurnal: document.getElementById('ai-save-jurnal').value
+            };
+
+            showModal("Menyimpan...", "Mengirim data ke database...");
+            const res = await apiCall('adminSaveContent', data);
+            closeMessage();
+
+            if (res.success) {
+                showModal("Berhasil!", res.message);
+                document.getElementById('ai-publish-panel').classList.add('opacity-50', 'pointer-events-none');
+                document.getElementById('ai-prompt').value = "";
+                generatedAIStoryData = null;
+            } else {
+                showModal("Gagal", res.message);
+            }
         }
-        async function loadAdminJournals() {
-            const tb = document.getElementById('adm-jurnal-table'); tb.innerHTML = `<tr><td colspan="4" class="p-4">Memuat...</td></tr>`;
-            const res = await apiCall('adminGetJournals');
-            if(res.success) tb.innerHTML = res.journals.map(j => `<tr class="border-b"><td class="p-4 font-bold">${j.Siswa_ID}</td><td class="p-4 text-xs">${j.Konten_ID}</td><td class="p-4 text-sm italic">${j.Jawaban_Siswa}</td><td class="p-4 space-x-2"><button onclick="valJournal('${j.Timestamp}', 'Valid')" class="bg-green-500 text-white px-3 py-1 rounded">Terima</button></td></tr>`).join('');
-            else tb.innerHTML = `<tr><td colspan="4" class="p-4">Kosong</td></tr>`;
-        }
-        function valJournal(ts, status) { apiCall('adminValidateJournal', {timestamp: ts, status: status}).then(r => loadAdminJournals()); }
     </script>
 </body>
 </html>
