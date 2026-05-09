@@ -2,542 +2,837 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPARK V3 - The Archive Explorers</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1025">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPARK - Smart Program for Active Reading</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    
     <script>
         tailwind.config = {
-            theme: { extend: { fontFamily: { sans: ['Nunito', 'sans-serif'] }, colors: { space: { 900: '#1a1025', 800: '#2d1b4e', 600: '#4c2882' }, spark: { blue: '#38bdf8', gold: '#fbbf24', orange: '#f97316' } } } }
+            theme: {
+                extend: { colors: { dark: '#0f172a', darker: '#020617', neonBlue: '#00f6ff', neonPurple: '#b026ff', neonGreen: '#00ff88' }, fontFamily: { sans: ['Orbitron', 'sans-serif', 'system-ui'] } }
+            }
         }
     </script>
-    
     <style>
-        body { font-family: 'Nunito', sans-serif; background-color: #1a1025; color: white; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh;}
-        main { flex: 1; }
-        .bg-stars { background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px); background-size: 550px 550px, 350px 350px; background-position: 0 0, 40px 60px; animation: move-bg 150s linear infinite; }
-        @keyframes move-bg { from { background-position: 0 0; } to { background-position: 1000px 500px; } }
-        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .progress-bar-fill { transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .coin-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 5rem; color: #fbbf24; text-shadow: 0 0 20px rgba(251, 191, 36, 0.8); z-index: 9999; pointer-events: none; }
-        .coin-popup.active { animation: popCoin 1.5s ease-out forwards; }
-        @keyframes popCoin { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 30% { transform: translate(-50%, -60%) scale(1.2); opacity: 1; } 70% { transform: translate(-50%, -70%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -100%) scale(0.5); opacity: 0; } }
-        .glass-panel { background: rgba(45, 27, 78, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #1a1025; } ::-webkit-scrollbar-thumb { background: #4c2882; border-radius: 4px;}
-        .card-img-wrapper { height: 160px; overflow: hidden; border-radius: 0.75rem 0.75rem 0 0; position: relative;}
-        .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-        .card-hover:hover img { transform: scale(1.05); }
-        .story-book { background: #fffcf2; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@500;700&display=swap');
+        body { font-family: 'Rajdhani', sans-serif; background-color: #020617; color: #e2e8f0; overflow-x: hidden; }
+        h1, h2, h3, .brand-font { font-family: 'Orbitron', sans-serif; }
+        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(0, 246, 255, 0.2); box-shadow: 0 0 15px rgba(0, 246, 255, 0.1); border-radius: 1rem; }
+        .neon-text-blue { text-shadow: 0 0 10px #00f6ff; }
+        .neon-border-blue { border-color: #00f6ff; box-shadow: 0 0 10px #00f6ff, inset 0 0 5px #00f6ff; }
+        .neon-btn-green { background: linear-gradient(45deg, #00ff88, #00b8ff); color: #020617; transition: all 0.3s ease; }
+        .neon-btn-green:hover { box-shadow: 0 0 20px #00ff88; transform: scale(1.05); }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0f172a; } ::-webkit-scrollbar-thumb { background: #00f6ff; border-radius: 3px; }
+        .loader { border: 4px solid rgba(0, 246, 255, 0.1); border-top: 4px solid #00f6ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+        .bg-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(rgba(0, 246, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 246, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; pointer-events: none; }
+        .bg-orb-1 { position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(0,246,255,0.15) 0%, transparent 60%); border-radius: 50%; z-index: -2; animation: float 12s infinite alternate; pointer-events: none; }
+        .bg-orb-2 { position: fixed; bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(176,38,255,0.1) 0%, transparent 60%); border-radius: 50%; z-index: -2; animation: float 15s infinite alternate-reverse; pointer-events: none; }
+        @keyframes float { 0% { transform: translateY(0) scale(1); } 100% { transform: translateY(30px) scale(1.1); } }
     </style>
 </head>
-<body class="bg-stars">
+<body class="min-h-screen flex flex-col relative">
 
-    <!-- MODAL GLOBAL -->
-    <div id="messageModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/70 backdrop-blur-sm">
-        <div class="bg-space-800 p-6 rounded-2xl border-2 border-spark-blue max-w-sm w-full mx-4 text-center shadow-2xl">
-            <div id="messageIcon" class="text-4xl mb-4 text-spark-gold"><i class="fa-solid fa-bell"></i></div>
-            <h3 id="messageTitle" class="text-xl font-bold mb-2">Perhatian</h3>
-            <p id="messageText" class="text-gray-300 mb-6 text-sm">Pesan di sini.</p>
-            <div id="messageActions" class="flex gap-2 justify-center">
-                <button onclick="closeMessage()" class="bg-spark-blue hover:bg-blue-500 text-space-900 font-bold py-2 px-6 rounded-full w-full transition">Tutup</button>
-            </div>
-        </div>
+    <div class="bg-grid"></div><div class="bg-orb-1"></div><div class="bg-orb-2"></div>
+
+    <div id="loadingOverlay" class="fixed inset-0 bg-darker/90 z-50 flex flex-col items-center justify-center hidden">
+        <div class="loader mb-4"></div>
+        <p class="text-neonBlue font-bold brand-font animate-pulse" id="loadingText">Menghubungkan ke SPARK Core...</p>
     </div>
-    <div id="coinAnim" class="coin-popup"><i class="fa-solid fa-star"></i> <span id="coinValue" class="text-3xl">+50</span></div>
 
-    <!-- ==================== LOGIN VIEW ==================== -->
-    <main id="view-login" class="flex items-center justify-center fade-in min-h-[80vh]">
-        <div class="glass-panel p-8 rounded-3xl border-2 border-spark-blue shadow-[0_0_30px_rgba(56,189,248,0.2)] max-w-md w-full mx-4 text-center">
-            <div class="text-6xl text-spark-orange mb-4 animate-bounce"><i class="fa-solid fa-rocket"></i></div>
-            <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-spark-blue to-spark-gold tracking-wider mb-2">SPARK</h1>
-            <p class="text-spark-blue mb-8 font-bold tracking-widest text-sm uppercase">Smart Program for Active Reading V3</p>
+    <!-- Navigation -->
+    <nav id="navbar" class="glass-panel sticky top-0 z-40 mx-2 md:mx-4 mt-4 p-3 md:p-4 flex justify-between items-center hidden">
+        <div class="flex items-center gap-2 md:gap-3">
+            <i class="fas fa-bolt text-neonBlue text-2xl md:text-3xl"></i>
+            <h1 class="text-xl md:text-2xl font-bold brand-font text-transparent bg-clip-text bg-gradient-to-r from-neonBlue to-neonPurple">SPARK</h1>
+        </div>
+        <div id="userStats" class="flex gap-3 md:gap-6 items-center hidden text-sm md:text-base">
+            <div class="text-center" title="Level Anda"><i class="fas fa-star text-yellow-400"></i> Lvl <span id="navLevel" class="font-bold text-white">1</span></div>
+            <div class="text-center" title="Poin SPARK"><i class="fas fa-coins text-neonGreen"></i> <span id="navPoints" class="font-bold text-white">0</span> SP</div>
             
-            <div class="space-y-4">
-                <div id="reader" class="w-full bg-space-900 rounded-xl overflow-hidden hidden border border-spark-blue"></div>
-                <button onclick="startScanner()" class="w-full bg-space-800 hover:bg-space-600 text-spark-blue font-bold py-3 px-4 rounded-xl border border-spark-blue transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-qrcode text-xl"></i> PINDAI KARTU SPARK
-                </button>
-                
-                <div class="flex items-center text-gray-500 my-2"><div class="flex-grow border-t border-space-600"></div><span class="px-3 text-xs uppercase font-bold">Atau Ketik Manual</span><div class="flex-grow border-t border-space-600"></div></div>
-                
-                <input type="text" id="loginUsername" placeholder="NISN / Username" class="w-full bg-space-900 border border-space-600 rounded-xl px-4 py-3 text-white focus:border-spark-blue text-center">
-                <input type="password" id="loginPassword" placeholder="Kata Sandi (Kosongkan jika Scan)" class="w-full bg-space-900 border border-space-600 rounded-xl px-4 py-3 text-white focus:border-spark-blue text-center">
-                
-                <button id="btn-login-std" onclick="login('student')" class="w-full bg-gradient-to-r from-spark-orange to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-black py-3 px-4 rounded-xl shadow-lg transform transition active:scale-95 text-lg">
-                    MULAI PETUALANGAN
-                </button>
-                <button id="btn-login-adm" onclick="login('admin')" class="w-full bg-space-600 hover:bg-space-800 text-gray-300 font-bold py-2 px-4 rounded-xl transition text-xs mt-2">
-                    <i class="fa-solid fa-user-shield mr-2"></i> Akses Ruang Kendali (Admin)
-                </button>
+            <!-- Tombol Refresh Data -->
+            <button onclick="app.refreshData()" class="text-neonBlue hover:text-white transition ml-1 md:ml-2" title="Refresh Data">
+                <i id="refreshIcon" class="fas fa-sync-alt"></i>
+            </button>
+            
+            <button onclick="app.logout()" class="text-red-400 hover:text-red-300 ml-2 md:ml-4"><i class="fas fa-power-off"></i></button>
+        </div>
+    </nav>
+
+    <main class="flex-grow p-2 md:p-4 lg:p-8 flex flex-col items-center w-full">
+
+        <!-- ================= LOGIN ================= -->
+        <div id="viewLogin" class="glass-panel w-full max-w-md p-6 md:p-8 mt-10 flex flex-col items-center">
+            <i class="fas fa-bolt text-neonBlue text-5xl md:text-6xl mb-4 neon-text-blue"></i>
+            <h1 class="text-3xl md:text-4xl font-bold brand-font mb-2">SPARK</h1>
+            <p class="text-gray-400 mb-6 text-center text-sm md:text-base">Smart Program for Active Reading</p>
+            
+            <div class="flex w-full mb-6 bg-darker rounded-lg p-1 border border-gray-700">
+                <button type="button" onclick="app.switchLoginRole('siswa')" id="btnRoleSiswa" class="flex-1 py-2 text-sm md:text-base rounded-md bg-neonBlue text-darker font-bold transition">Siswa</button>
+                <button type="button" onclick="app.switchLoginRole('admin')" id="btnRoleAdmin" class="flex-1 py-2 text-sm md:text-base rounded-md text-gray-400 font-bold hover:text-white transition">Admin</button>
+            </div>
+            <h2 id="loginTitle" class="text-lg md:text-xl text-neonBlue font-bold mb-4 brand-font">Portal Siswa</h2>
+            
+            <form id="loginForm" class="w-full" onsubmit="event.preventDefault(); app.login()">
+                <div class="mb-4">
+                    <label class="block text-neonBlue mb-2 text-sm md:text-base"><i class="fas fa-user mr-2"></i>Username</label>
+                    <input type="text" id="username" class="w-full bg-dark border border-gray-600 rounded p-3 text-white focus:outline-none focus:border-neonBlue" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-neonBlue mb-2 text-sm md:text-base"><i class="fas fa-lock mr-2"></i>Password</label>
+                    <input type="password" id="password" class="w-full bg-dark border border-gray-600 rounded p-3 text-white focus:outline-none focus:border-neonBlue" required>
+                </div>
+                <button type="submit" class="w-full neon-btn-green font-bold py-3 rounded brand-font text-lg">LOGIN</button>
+            </form>
+        </div>
+
+        <!-- ================= DASHBOARD SISWA ================= -->
+        <div id="viewStudent" class="w-full max-w-6xl hidden flex-col gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-neonBlue">
+                    <div class="bg-blue-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-book-open text-neonBlue text-xl md:text-2xl"></i></div>
+                    <div><p class="text-[10px] md:text-xs text-gray-400">Buku Dibaca</p><p class="text-lg md:text-xl font-bold" id="statBooks">0</p></div>
+                </div>
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-neonGreen">
+                    <div class="bg-green-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-clock text-neonGreen text-xl md:text-2xl"></i></div>
+                    <div><p class="text-[10px] md:text-xs text-gray-400">Waktu Baca</p><p class="text-lg md:text-xl font-bold"><span id="statTime">0</span> mnt</p></div>
+                </div>
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-yellow-400">
+                    <div class="bg-yellow-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-fire text-yellow-400 text-xl md:text-2xl"></i></div>
+                    <div><p class="text-[10px] md:text-xs text-gray-400">Streak</p><p class="text-lg md:text-xl font-bold"><span id="statStreak">0</span> Hari</p></div>
+                </div>
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-neonPurple">
+                    <div class="bg-purple-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-medal text-neonPurple text-xl md:text-2xl"></i></div>
+                    <div><p class="text-[10px] md:text-xs text-gray-400">Badges</p><p class="text-lg md:text-xl font-bold" id="statBadges">0</p></div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 md:gap-4 border-b border-gray-700 pb-2">
+                <button onclick="app.switchTab('missions')" id="tabMissions" class="text-neonBlue font-bold border-b-2 border-neonBlue px-3 py-2 text-sm md:text-base brand-font">Misi Harian</button>
+                <button onclick="app.switchTab('library')" id="tabLibrary" class="text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition">Perpustakaan</button>
+            </div>
+
+            <div id="contentMissions" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
+            <div id="contentLibrary" class="hidden flex-col gap-4">
+                <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
             </div>
         </div>
-    </main>
 
-    <!-- ==================== STUDENT INTERFACE ==================== -->
-    <div id="app-student" class="hidden flex-col min-h-screen">
-        <nav class="glass-panel sticky top-0 z-40 border-b border-space-600">
-            <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="navigate('student-dashboard')">
-                    <i class="fa-solid fa-rocket text-spark-orange text-2xl"></i><span class="text-xl font-black text-white tracking-widest hidden sm:block">SPARK</span>
-                </div>
-                <div class="flex gap-4 items-center">
-                    <button id="sync-indicator" class="hidden text-spark-orange animate-pulse relative group" onclick="syncOfflineData()">
-                        <i class="fa-solid fa-cloud-arrow-up text-xl"></i>
-                        <span class="absolute top-8 right-0 bg-space-800 text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap border border-space-600">Ada antrean offline, ketuk saat sinyal stabil!</span>
-                    </button>
-                    <button onclick="navigate('dashboard')" class="text-gray-300 hover:text-spark-blue transition"><i class="fa-solid fa-house text-xl"></i></button>
-                    <button onclick="doLogout()" class="text-red-400 hover:text-red-300 transition ml-2 border-l border-space-600 pl-4"><i class="fa-solid fa-right-from-bracket text-xl"></i></button>
+        <!-- ================= READING MODE ================= -->
+        <!-- Perbaikan responsivitas: height otomatis menyesuaikan dan tidak terpotong -->
+        <div id="viewReading" class="w-full max-w-5xl hidden flex-col h-[85vh] md:h-[80vh]">
+            
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-dark p-3 md:p-4 rounded-t-xl border border-gray-700 gap-3 shrink-0">
+                <h2 id="readTitle" class="font-bold text-lg md:text-xl brand-font text-neonBlue w-full md:w-auto truncate">Judul Buku</h2>
+                <div class="flex items-center gap-2 md:gap-4 w-full md:w-auto justify-between md:justify-end">
+                    <div class="text-gray-400 text-xs md:text-sm hidden md:block">Target: <span id="targetTimeLabel"></span>mnt</div>
+                    <div id="timerDisplay" class="bg-gray-800 px-3 py-1 md:py-2 rounded-full text-neonBlue font-mono font-bold text-sm md:text-base">
+                        <i class="fas fa-stopwatch mr-1"></i> <span id="timeText">00:00</span>
+                    </div>
+                    <button id="btnFinishRead" onclick="app.finishReading()" class="bg-gray-600 text-gray-400 px-3 py-1 md:py-2 rounded font-bold cursor-not-allowed transition text-xs md:text-sm" disabled>Selesai</button>
+                    <button onclick="app.exitReading()" class="text-red-500 hover:text-red-400 ml-2"><i class="fas fa-times text-xl"></i></button>
                 </div>
             </div>
-        </nav>
-
-        <main class="max-w-6xl mx-auto w-full p-4 md:p-6 flex-grow">
-            <!-- DASHBOARD SISWA -->
-            <div id="view-student-dashboard" class="hidden space-y-6 fade-in">
-                <div class="bg-gradient-to-r from-space-800 to-space-600 rounded-3xl p-6 shadow-xl border border-space-600 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
-                    <div class="w-24 h-24 bg-space-900 rounded-full flex items-center justify-center border-4 border-spark-blue z-10"><i class="fa-solid fa-user-astronaut text-4xl text-spark-blue"></i></div>
-                    <div class="flex-grow text-center md:text-left z-10 w-full">
-                        <h2 class="text-2xl font-bold text-white mb-1" id="std-name">Kapten</h2>
-                        <p class="text-spark-gold font-bold text-lg mb-2"><i class="fa-solid fa-star mr-1"></i> Lvl <span id="std-level-num">1</span></p>
-                        <div class="relative w-full h-4 bg-space-900 rounded-full overflow-hidden"><div id="std-exp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-spark-blue to-spark-gold progress-bar-fill" style="width: 0%;"></div></div>
-                        <p class="text-xs mt-1 text-gray-400 font-bold text-right"><span id="std-exp-current">0</span> XP Total</p>
+            
+            <!-- Content Area (Image & Text) -->
+            <div class="bg-white flex-grow flex flex-col md:flex-row overflow-hidden rounded-b-xl border-x border-b border-gray-700">
+                
+                <!-- Image Section: Tinggi fixed di HP (h-1/3), full di Desktop (w-1/2) -->
+                <div class="w-full md:w-1/2 h-48 md:h-full bg-gray-200 relative flex items-center justify-center border-b md:border-r border-gray-300 shrink-0">
+                    <img id="storyImage" src="" class="w-full h-full object-cover hidden" alt="Ilustrasi">
+                    <div id="storyImagePlaceholder" class="text-gray-500 text-center p-4 hidden">
+                        <i class="fas fa-image text-4xl md:text-6xl mb-2"></i>
+                        <p class="text-sm">Tidak ada ilustrasi</p>
                     </div>
                 </div>
-                <div>
-                    <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-satellite-dish text-spark-orange"></i> Transmisi Misi Tersedia</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="mission-grid"></div>
-                </div>
-            </div>
-
-            <!-- TASK FLOW (MEMBACA -> KUIS -> JURNAL) -->
-            <div id="view-student-task-flow" class="hidden fade-in max-w-4xl mx-auto">
-                <button onclick="navigate('dashboard'); clearInterval(state.timer);" class="text-gray-400 hover:text-white mb-4 transition font-bold"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali / Batalkan</button>
-                <div class="bg-white text-space-900 rounded-3xl overflow-hidden shadow-2xl">
-                    <div class="bg-gray-100 px-6 py-3 border-b flex justify-between items-center text-sm font-bold text-gray-500" id="task-breadcrumbs">
-                        <span id="bc-reading" class="text-spark-blue"><i class="fa-solid fa-book-open"></i> 1. Membaca</span>
-                        <i class="fa-solid fa-chevron-right text-gray-300"></i>
-                        <span id="bc-quiz"><i class="fa-solid fa-question-circle"></i> 2. Kuis</span>
-                        <i class="fa-solid fa-chevron-right text-gray-300"></i>
-                        <span id="bc-journal"><i class="fa-solid fa-pen-nib"></i> 3. Jurnal</span>
+                
+                <!-- Text Section: Fleksibel dan Scrollable hanya di dalam box ini -->
+                <div class="w-full md:w-1/2 h-full flex flex-col overflow-hidden bg-white">
+                    
+                    <!-- Scrollable text area -->
+                    <div class="p-4 md:p-8 text-black overflow-y-auto flex-grow" id="storyScrollContainer">
+                        <div id="storyText" class="text-base md:text-lg leading-relaxed mb-4"></div>
+                        <div id="storyChoices" class="flex flex-col gap-3 mb-4 hidden"></div>
                     </div>
                     
-                    <!-- BACAAN UMUM & AI STORY READER -->
-                    <div id="step-reading" class="p-0 bg-gray-50 relative">
-                        <!-- Tampilan untuk Bacaan Biasa -->
-                        <div id="standard-reader" class="hidden p-6 md:p-10">
-                            <h2 class="text-2xl font-bold mb-4" id="fs-read-title">Judul Bacaan</h2>
-                            <div id="fs-read-content" class="prose prose-lg max-w-none text-gray-800 leading-relaxed mb-6"></div>
-                        </div>
-
-                        <!-- Tampilan Khusus Cerita AI (Interaktif) -->
-                        <div id="ai-reader" class="hidden p-4 md:p-8 flex flex-col items-center">
-                            <div class="story-book w-full max-w-2xl p-6 md:p-8 flex flex-col items-center relative">
-                                <div class="absolute top-4 right-4 bg-spark-gold text-space-900 text-xs font-black px-3 py-1 rounded-full shadow">Halaman <span id="ai-page-num">1</span>/10</div>
-                                <h2 class="text-2xl font-black text-center text-gray-800 mb-6 font-serif" id="ai-story-title">Judul Cerita</h2>
-                                
-                                <div class="w-full h-64 md:h-80 bg-gray-200 rounded-xl overflow-hidden mb-6 shadow-inner border-2 border-gray-300 flex items-center justify-center relative">
-                                    <div id="ai-img-loading" class="absolute flex flex-col items-center text-gray-400"><i class="fa-solid fa-palette fa-spin text-3xl mb-2"></i><p class="text-xs font-bold">Menggambar...</p></div>
-                                    <img id="ai-story-img" class="w-full h-full object-cover z-10 hidden" onload="this.classList.remove('hidden'); document.getElementById('ai-img-loading').classList.add('hidden')">
-                                </div>
-                                
-                                <p id="ai-story-text" class="text-lg md:text-xl text-gray-800 leading-relaxed mb-8 text-center font-serif min-h-[150px]"></p>
-                                
-                                <div id="ai-choices" class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 hidden mb-4">
-                                    <button onclick="aiStoryChoice('a')" class="bg-spark-blue hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow transition" id="ai-btn-a">Pilihan A</button>
-                                    <button onclick="aiStoryChoice('b')" class="bg-spark-orange hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-xl shadow transition" id="ai-btn-b">Pilihan B</button>
-                                </div>
-
-                                <div class="flex justify-between w-full mt-auto" id="ai-nav-btns">
-                                    <button onclick="aiStoryNav(-1)" id="ai-btn-prev" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded-full shadow hidden"><i class="fa-solid fa-arrow-left mr-2"></i> Kembali</button>
-                                    <button onclick="aiStoryNav(1)" id="ai-btn-next" class="bg-space-800 hover:bg-space-600 text-white font-bold py-2 px-6 rounded-full shadow ml-auto">Lanjut <i class="fa-solid fa-arrow-right ml-2"></i></button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Waktu Membaca -->
-                        <div class="flex justify-between items-center bg-gray-200 p-4 border-t border-gray-300">
-                            <span id="fs-read-timer" class="font-mono font-bold text-gray-600">00:00 / 05:00</span>
-                            <button id="btn-fs-finish" onclick="completeStepReading()" disabled class="bg-gray-400 text-white font-bold py-2 px-6 rounded-xl cursor-not-allowed transition">TUGAS SELESAI</button>
-                        </div>
-                    </div>
-
-                    <!-- KUIS & JURNAL -->
-                    <div id="step-quiz" class="hidden p-6 md:p-10 bg-gray-50">
-                        <h2 class="text-3xl font-black text-space-900 mb-4 text-center">Uji Pemahaman</h2>
-                        <p class="text-lg font-bold mb-4 text-gray-800" id="quiz-question">Pertanyaan?</p>
-                        <textarea id="quiz-answer" rows="3" class="w-full border-2 rounded-xl p-3 text-gray-900 focus:border-spark-orange" placeholder="Jawaban singkat..."></textarea>
-                        <button onclick="completeStepQuiz()" class="mt-4 w-full bg-spark-orange hover:bg-orange-500 text-white font-bold py-3 rounded-xl shadow">KIRIM JAWABAN KUIS</button>
-                    </div>
-
-                    <div id="step-journal" class="hidden p-6 md:p-10 bg-blue-50">
-                        <h2 class="text-3xl font-black text-space-900 mb-4 text-center">Jurnal Refleksi</h2>
-                        <p class="text-md font-bold mb-2 text-spark-blue" id="journal-question">Apa pesan utamanya?</p>
-                        <textarea id="journal-answer" rows="5" class="w-full border-2 rounded-xl p-3 text-gray-900 focus:border-spark-blue" placeholder="Ketik jurnalmu di sini..."></textarea>
-                        <button onclick="completeStepJournal()" class="mt-4 w-full bg-spark-blue hover:bg-blue-500 text-white font-bold py-3 rounded-xl shadow">SIMPAN JURNAL & SELESAI</button>
+                    <!-- Pagination Bar (Sticky at bottom) -->
+                    <div class="p-3 md:p-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center shrink-0">
+                        <button id="btnPrevPage" onclick="app.prevPage()" class="bg-gray-800 text-white px-3 py-2 rounded hover:bg-gray-700 hidden text-sm"><i class="fas fa-chevron-left mr-1"></i> Prev</button>
+                        <span id="pageIndicator" class="font-bold text-gray-500 text-sm mx-auto">Hal. 1</span>
+                        <button id="btnNextPage" onclick="app.nextPage()" class="bg-neonBlue text-darker font-bold px-3 py-2 rounded hover:bg-cyan-400 hidden text-sm shadow">Next <i class="fas fa-chevron-right ml-1"></i></button>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
 
-    <!-- ==================== ADMIN INTERFACE ==================== -->
-    <div id="app-admin" class="hidden flex-col min-h-screen bg-gray-100 text-gray-800">
-        <nav class="bg-space-900 text-white shadow-md z-40 sticky top-0">
-            <div class="max-w-7xl mx-auto px-4 flex flex-wrap justify-between items-center h-auto md:h-16 py-2">
-                <div class="flex items-center gap-2 font-bold text-xl w-full md:w-auto justify-center md:justify-start mb-2 md:mb-0">
-                    <i class="fa-solid fa-user-shield text-spark-blue"></i> SPARK Admin
-                </div>
-                <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto text-sm">
-                    <button onclick="navAdmin('dashboard')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-chart-line"></i> Dasbor</button>
-                    <button onclick="navAdmin('students')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-users"></i> Siswa</button>
-                    <button onclick="navAdmin('validation')" class="hover:bg-space-800 px-3 py-2 rounded transition"><i class="fa-solid fa-check-double"></i> Validasi Jurnal</button>
-                    <button onclick="navAdmin('ai-creator')" class="bg-spark-blue text-space-900 hover:bg-blue-500 px-3 py-2 rounded font-bold transition"><i class="fa-solid fa-wand-magic-sparkles"></i> Studio AI</button>
-                    <button onclick="doLogout()" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded font-bold transition ml-2">Keluar</button>
-                </div>
-            </div>
-        </nav>
-
-        <main class="flex-grow max-w-7xl mx-auto w-full p-4 md:p-6 pb-20">
-            <!-- ADMIN DASHBOARD -->
-            <div id="admin-view-dashboard" class="space-y-6 fade-in">
-                <h1 class="text-3xl font-black text-space-900">Analitik Aktivitas</h1>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-xl shadow border-l-4 border-blue-500"><p class="text-xs text-gray-500 font-bold uppercase">Total Siswa</p><p class="text-3xl font-black" id="adm-stat-siswa">0</p></div>
-                    <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-500"><p class="text-xs text-gray-500 font-bold uppercase">Total Log</p><p class="text-3xl font-black" id="adm-stat-misi">0</p></div>
-                </div>
+        <!-- ================= QUIZ MODE ================= -->
+        <div id="viewQuiz" class="glass-panel w-full max-w-3xl hidden p-4 md:p-8">
+            <h2 class="text-xl md:text-2xl font-bold brand-font text-neonPurple mb-2 text-center">Kuis Unsur Intrinsik</h2>
+            <p class="text-center text-gray-400 mb-4 md:mb-6 text-sm md:text-base">Jawab dengan benar untuk dapat +5 Poin per soal!</p>
+            
+            <div class="flex justify-between mb-4 border-b border-gray-700 pb-2 text-sm md:text-base">
+                <span class="text-neonBlue font-bold">Soal <span id="quizCurrentNum">1</span>/5</span>
+                <span class="text-neonGreen font-bold">Skor Sementara: <span id="quizScoreDisplay">0</span></span>
             </div>
 
-            <!-- ADMIN AI CREATOR -->
-            <div id="admin-view-ai-creator" class="hidden space-y-6 fade-in">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="bg-spark-blue p-3 rounded-xl"><i class="fa-solid fa-robot text-2xl text-space-900"></i></div>
-                    <div><h1 class="text-3xl font-black text-space-900">Studio Cerita AI</h1><p class="text-gray-500">Buat buku interaktif 10 halaman beserta ilustrasinya otomatis.</p></div>
+            <div id="quizContainer">
+                <p id="questionText" class="text-lg md:text-xl mb-6 text-white font-semibold">Pertanyaan loading...</p>
+                <div id="optionsContainer" class="flex flex-col gap-3"></div>
+            </div>
+        </div>
+
+        <!-- ================= JOURNAL MODE ================= -->
+        <div id="viewJournal" class="glass-panel w-full max-w-4xl hidden p-4 md:p-8">
+            <h2 class="text-xl md:text-2xl font-bold brand-font text-neonGreen mb-2 text-center"><i class="fas fa-pen-nib mr-2"></i>Jurnal Pemahaman</h2>
+            <p class="text-center text-gray-400 mb-4 md:mb-6 text-sm md:text-base">Lengkapi data berikut. Poin tambahan menantimu!</p>
+            
+            <form id="journalForm" onsubmit="event.preventDefault(); app.submitJournal();" class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div class="col-span-1 md:col-span-2">
+                    <label class="text-gray-400 text-xs md:text-sm">Judul Bacaan</label>
+                    <input type="text" id="jrnJudul" class="w-full bg-darker border border-gray-600 rounded p-2 text-white" readonly>
+                </div>
+                <div>
+                    <label class="text-gray-400 text-xs md:text-sm">Pengarang</label>
+                    <input type="text" id="jrnPengarang" value="SPARK" class="w-full bg-darker border border-gray-600 rounded p-2 text-gray-500" readonly>
+                </div>
+                <div>
+                    <label class="text-gray-400 text-xs md:text-sm">Penerbit</label>
+                    <input type="text" id="jrnPenerbit" value="SPARK" class="w-full bg-darker border border-gray-600 rounded p-2 text-gray-500" readonly>
+                </div>
+                <div>
+                    <label class="text-gray-400 text-xs md:text-sm">Jumlah Halaman Cerita</label>
+                    <input type="number" id="jrnHalaman" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required>
+                </div>
+                <div>
+                    <label class="text-gray-400 text-xs md:text-sm">Tanggal Membaca</label>
+                    <input type="date" id="jrnTanggal" class="w-full bg-darker border border-gray-600 rounded p-2 text-gray-500" readonly>
                 </div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Form AI -->
-                    <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-spark-blue">
-                        <h3 class="font-bold text-lg mb-4">1. Konsep Cerita</h3>
-                        <textarea id="ai-prompt" rows="4" class="w-full border rounded-xl p-4 mb-4 text-gray-800 focus:border-spark-blue focus:outline-none" placeholder="Tuliskan ide ceritanya... (Contoh: Cerita petualangan Budi ke luar angkasa bertemu alien ramah yang mengajarkan pentingnya menjaga kebersihan)"></textarea>
-                        
-                        <div class="mb-6 p-4 bg-gray-50 rounded-xl border">
-                            <h4 class="font-bold text-sm mb-2">Tipe Interaksi Cerita:</h4>
-                            <label class="flex items-center gap-2 cursor-pointer mb-2">
-                                <input type="radio" name="ai-branching" value="false" checked class="w-5 h-5 text-spark-blue"> Lurus (10 Halaman linear)
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="ai-branching" value="true" class="w-5 h-5 text-spark-blue"> Percabangan (Siswa memilih jalan di Hal 6, 2 Akhir Berbeda)
-                            </label>
-                        </div>
-                        
-                        <button onclick="generateAIStoryAdmin()" id="btn-generate-ai" class="w-full bg-space-800 hover:bg-space-600 text-white font-bold py-3 rounded-xl shadow transition"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i> GENERATE CERITA & ILUSTRASI</button>
-                    </div>
-
-                    <!-- Form Publish (Muncul setelah Generate sukses) -->
-                    <div class="bg-white p-6 rounded-2xl shadow border-t-4 border-spark-gold opacity-50 pointer-events-none transition-all" id="ai-publish-panel">
-                        <h3 class="font-bold text-lg mb-4">2. Pengaturan Misi & Terbitkan</h3>
-                        <div class="space-y-4">
-                            <div><label class="block text-sm font-bold text-gray-700 mb-1">Judul Misi</label><input type="text" id="ai-save-judul" class="w-full border rounded-lg px-4 py-2"></div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Tanggal Bisa Dibuka</label><input type="date" id="ai-save-rilis" class="w-full border rounded-lg px-4 py-2"></div>
-                                <div><label class="block text-sm font-bold text-gray-700 mb-1">Min Waktu (Menit)</label><input type="number" id="ai-save-waktu" value="5" class="w-full border rounded-lg px-4 py-2"></div>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2">
-                                <div><label class="block text-xs font-bold text-gray-700 mb-1">Poin Baca</label><input type="number" id="ai-save-pb" value="100" class="w-full border rounded-lg px-2 py-1"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 mb-1">Poin Kuis</label><input type="number" id="ai-save-pk" value="100" class="w-full border rounded-lg px-2 py-1"></div>
-                                <div><label class="block text-xs font-bold text-gray-700 mb-1">Poin Jurnal</label><input type="number" id="ai-save-pj" value="100" class="w-full border rounded-lg px-2 py-1"></div>
-                            </div>
-                            <textarea id="ai-save-kuis" rows="2" class="w-full border rounded-lg p-2 text-sm" placeholder="Pertanyaan Kuis..."></textarea>
-                            <textarea id="ai-save-jurnal" rows="2" class="w-full border rounded-lg p-2 text-sm" placeholder="Pertanyaan Jurnal..."></textarea>
-                            <button onclick="saveAIStoryToDB()" class="w-full bg-spark-gold text-space-900 font-black py-3 rounded-xl shadow hover:bg-yellow-500">SIMPAN KE DATABASE</button>
-                        </div>
-                    </div>
+                <div class="col-span-1 md:col-span-2 border-t border-gray-700 mt-2 pt-3 md:pt-4">
+                    <h3 class="text-neonBlue font-bold mb-3 md:mb-4 text-sm md:text-base">Unsur Intrinsik Temuanmu</h3>
                 </div>
+
+                <div>
+                    <label class="text-neonBlue text-xs md:text-sm">Siapa Nama Tokoh Utamanya?</label>
+                    <input type="text" id="jrnTokoh" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required>
+                </div>
+                <div>
+                    <label class="text-neonBlue text-xs md:text-sm">Bagaimana Sifat Tokoh Tersebut?</label>
+                    <input type="text" id="jrnSifat" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required>
+                </div>
+                <div class="col-span-1 md:col-span-2">
+                    <label class="text-yellow-400 text-xs md:text-sm">Permasalahan apa yang dialami tokoh utama?</label>
+                    <textarea id="jrnMasalah" rows="2" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required></textarea>
+                </div>
+                <div class="col-span-1 md:col-span-2 mb-4">
+                    <label class="text-neonGreen text-xs md:text-sm">Tindakan tokoh dalam menyelesaikan masalahnya?</label>
+                    <textarea id="jrnSolusi" rows="2" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required></textarea>
+                </div>
+
+                <div class="col-span-1 md:col-span-2">
+                    <button type="submit" class="w-full neon-btn-green py-3 rounded font-bold text-base md:text-lg brand-font">Kirim Jurnal & Dapatkan Poin</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ================= ADMIN DASHBOARD ================= -->
+        <div id="viewAdmin" class="w-full max-w-7xl hidden flex-col gap-6">
+            <div class="glass-panel p-4 md:p-6 mb-4 flex flex-col md:flex-row justify-between items-start md:items-center border-b-4 border-red-500 gap-4">
+                <div>
+                    <h2 class="text-2xl md:text-3xl font-bold brand-font text-red-400">COMMAND CENTER</h2>
+                </div>
+                <button onclick="app.logout()" class="bg-red-500/20 text-red-400 px-4 py-2 rounded w-full md:w-auto">Logout Admin</button>
             </div>
 
-            <!-- ADMIN STUDENTS & VALIDATION (Singkat) -->
-            <div id="admin-view-students" class="hidden space-y-6 fade-in"><div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-space-900 text-white"><tr><th class="p-4">Nama Siswa</th><th class="p-4">NISN</th><th class="p-4">Statistik</th></tr></thead><tbody id="adm-siswa-table"></tbody></table></div></div>
-            <div id="admin-view-validation" class="hidden space-y-6 fade-in"><div class="bg-white rounded-2xl shadow overflow-hidden"><table class="w-full text-left text-sm"><thead class="bg-space-900 text-white"><tr><th class="p-4">Siswa</th><th class="p-4">Konten</th><th class="p-4">Isi Jurnal</th><th class="p-4 text-center">Aksi</th></tr></thead><tbody id="adm-jurnal-table"></tbody></table></div></div>
-        </main>
-    </div>
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+                <div class="w-full md:w-1/4 flex flex-col gap-2">
+                    <button class="admin-tab text-left px-4 py-3 bg-darker rounded border border-gray-700 hover:border-red-400" onclick="app.showAdminTab('crud_missions')"><i class="fas fa-magic w-6"></i> AI Story Generator</button>
+                    <button class="admin-tab text-left px-4 py-3 bg-darker rounded border border-gray-700 hover:border-red-400" onclick="app.showAdminTab('progress')"><i class="fas fa-chart-pie w-6"></i> Progres Siswa</button>
+                </div>
 
-    <!-- ==================== SCRIPT LOGIC ==================== -->
+                <div class="w-full md:w-3/4 glass-panel p-4 md:p-6 min-h-[500px]">
+                    
+                    <div id="admin-crud_missions" class="admin-content">
+                        <h3 class="text-lg md:text-xl font-bold brand-font text-yellow-400 mb-6"><i class="fas fa-robot mr-2"></i>Buat Misi Otomatis dengan AI</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-dark p-4 md:p-6 rounded border border-gray-700">
+                                <label class="block text-gray-400 text-sm mb-1">Ide Cerita Pendek:</label>
+                                <textarea id="aiPrompt" class="w-full bg-darker border border-gray-600 rounded p-3 text-white mb-4" rows="3" placeholder="Cerita tentang persahabatan kelinci dan kura-kura..."></textarea>
+                                
+                                <div class="flex items-center gap-3 mb-4">
+                                    <input type="checkbox" id="aiBranching" class="w-5 h-5 accent-neonBlue">
+                                    <label for="aiBranching" class="text-white text-sm">Gunakan Alur Bercabang (Branching)</label>
+                                </div>
+                                <button onclick="app.generateAIStory()" id="btnGenerateAI" class="w-full neon-btn-green py-2 rounded font-bold brand-font"><i class="fas fa-magic mr-2"></i> Generate Cerita</button>
+                                
+                                <div id="aiLoadingStatus" class="mt-4 text-center hidden">
+                                    <div class="loader inline-block border-t-neonBlue w-6 h-6 border-2"></div>
+                                    <p class="text-neonBlue text-sm mt-2 animate-pulse" id="aiStatusText">AI sedang bekerja...</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-dark p-4 md:p-6 rounded border border-gray-700">
+                                <div class="grid grid-cols-2 gap-3 mb-4">
+                                    <div class="col-span-2"><label class="block text-xs text-gray-400">Judul:</label><input type="text" id="missionTitle" class="w-full bg-darker border border-gray-600 rounded p-2 text-white text-sm" readonly></div>
+                                    <div><label class="block text-xs text-gray-400">Tgl Rilis:</label><input type="date" id="missionRelease" class="w-full bg-darker border border-gray-600 rounded p-2 text-white text-sm"></div>
+                                    <div><label class="block text-xs text-gray-400">Waktu Min (Mnt):</label><input type="number" id="missionMinTime" value="5" class="w-full bg-darker border border-gray-600 rounded p-2 text-white text-sm"></div>
+                                </div>
+                                
+                                <!-- Hidden Fields -->
+                                <input type="hidden" id="missionStoryData">
+                                <input type="hidden" id="missionQuizData">
+                                <input type="hidden" id="missionThumbnail">
+                                
+                                <button onclick="app.saveNewMission()" id="btnSaveMission" class="w-full bg-blue-600 text-white py-3 rounded font-bold opacity-50 cursor-not-allowed" disabled><i class="fas fa-save mr-2"></i> Simpan ke Database</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="admin-progress" class="admin-content hidden">
+                        <h3 class="text-lg md:text-xl font-bold brand-font text-neonBlue mb-6">Data Progres Siswa</h3>
+                        <p class="text-gray-400 text-sm md:text-base">Untuk manajemen dan pelaporan data yang komprehensif, silakan akses Google Sheets Anda secara langsung.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full p-4 mt-auto bg-darker border-t border-gray-800 text-center text-sm text-gray-500 z-10">
+        <p class="brand-font tracking-widest text-neonBlue/50 mb-1">SPARK © 2026</p>
+    </footer>
+
     <script>
-        // PWA REGISTRATION
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); }); }
+        // Ganti URL ini dengan URL Web App Apps Script Anda!
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbw8_AMUcTXWhX57qdniEPlvH7Kj1r7lc0axKD2tjLJgfnFenbHZhE5rmWvRnks53XIY/exec'; 
+        const apiKey = ""; 
 
-        // KONEKSI DATABASE BAPAK
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw8_AMUcTXWhX57qdniEPlvH7Kj1r7lc0axKD2tjLJgfnFenbHZhE5rmWvRnks53XIY/exec"; 
+        const app = {
+            currentUser: null,
+            state: {
+                loginRole: 'siswa',
+                lastPassword: '',
+                missions: [], library: [], progress: [],
+                currentTask: null, taskType: null,
+                timer: 0, timerInterval: null, elapsedTime: 0,
+                storyData: null, currentPageId: "1",
+                quizData: [], currentQuizIndex: 0, quizScore: 0
+            },
 
-        let state = { user: null, userLogs: [], contentData: { misi: [], perpustakaan: [] }, currentTask: { type: null, data: null, currentStep: null }, timer: null, timeSpent: 0 };
-        
-        // State Khusus AI Story Reader
-        let aiStoryState = { json: null, currentPageId: "1", isBranching: false, path: "" };
-        // State Khusus Admin AI Generator
-        let generatedAIStoryData = null; 
-
-        // 1. API CALL (OFFLINE INTERCEPTOR)
-        async function apiCall(action, payloadData = {}) {
-            if (!navigator.onLine && action === 'saveActivity') {
-                let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]');
-                queue.push({ action, data: payloadData, timestamp: Date.now() });
-                localStorage.setItem('sparkOfflineQueue', JSON.stringify(queue)); updateSyncIndicator();
-                let tPoin = parseInt(payloadData.poin) || 0; return { success: true, message: "Disimpan di Ransel Offline!", poinBaru: state.user.exp + tPoin, levelBaru: Math.floor((state.user.exp + tPoin)/1000)+1 };
-            }
-            try { const res = await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action, data: payloadData }) }); return await res.json(); } catch (err) { return { success: false, message: err.message }; }
-        }
-
-        // 2. SCANNER & SYNC
-        let html5QrcodeScanner;
-        function startScanner() { const readerEl = document.getElementById('reader'); readerEl.classList.remove('hidden'); if(!html5QrcodeScanner) html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false); html5QrcodeScanner.render((txt) => { document.getElementById('loginUsername').value = txt; document.getElementById('loginPassword').value = ''; html5QrcodeScanner.clear(); readerEl.classList.add('hidden'); login('student'); }, (err) => {}); }
-        function updateSyncIndicator() { const ind = document.getElementById('sync-indicator'); JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]').length > 0 ? ind.classList.remove('hidden') : ind.classList.add('hidden'); }
-        window.addEventListener('online', syncOfflineData);
-        async function syncOfflineData() { let queue = JSON.parse(localStorage.getItem('sparkOfflineQueue') || '[]'); if (queue.length === 0) return; document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-arrows-rotate fa-spin text-xl"></i>'; for (let task of queue) { try { await fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: task.action, data: task.data }) }); } catch(e) {} } localStorage.removeItem('sparkOfflineQueue'); document.getElementById('sync-indicator').innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-xl"></i>'; updateSyncIndicator(); }
-        document.addEventListener("DOMContentLoaded", updateSyncIndicator);
-
-        // 3. UTILS & UI
-        function showModal(title, text) { document.getElementById('messageTitle').innerText = title; document.getElementById('messageText').innerText = text; document.getElementById('messageModal').classList.remove('hidden'); }
-        function closeMessage() { document.getElementById('messageModal').classList.add('hidden'); }
-        function triggerCoin(val) { const el = document.getElementById('coinAnim'); document.getElementById('coinValue').innerText = "+" + val; el.classList.remove('active'); void el.offsetWidth; el.classList.add('active'); }
-        function doLogout() { state.user = null; document.getElementById('app-student').classList.add('hidden'); document.getElementById('app-admin').classList.add('hidden'); document.getElementById('view-login').classList.remove('hidden'); }
-
-        // 4. LOGIN & STUDENT UI
-        async function login(role) {
-            const user = document.getElementById('loginUsername').value; const pass = document.getElementById('loginPassword').value;
-            const btn = role === 'student' ? document.getElementById('btn-login-std') : document.getElementById('btn-login-adm');
-            if(!user) return showModal("Error", "Isi data login.");
-            const orig = btn.innerHTML; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`; btn.disabled = true;
-            const res = await apiCall(role === 'admin' ? 'loginAdmin' : 'login', role === 'admin' ? {username: user, password: pass} : {nisn: user, password: pass});
-            btn.innerHTML = orig; btn.disabled = false;
-            if(res.success) {
-                document.getElementById('view-login').classList.add('hidden'); document.getElementById('loginUsername').value = ''; document.getElementById('loginPassword').value = '';
-                if(role === 'admin') { document.getElementById('app-admin').classList.remove('hidden'); document.getElementById('app-admin').classList.add('flex'); navAdmin('dashboard'); initAdmin(); } 
-                else {
-                    state.user = res.user; state.userLogs = res.logs || []; document.getElementById('app-student').classList.remove('hidden'); document.getElementById('app-student').classList.add('flex'); navigate('dashboard');
-                    apiCall('getContent').then(r => { if(r.success) { state.contentData = r; localStorage.setItem('sparkContentCache', JSON.stringify(r)); renderStudentUI(); } }).catch(e => { let c = localStorage.getItem('sparkContentCache'); if(c) { state.contentData = JSON.parse(c); renderStudentUI(); showModal("Mode Offline", "Menggunakan arsip materi tersimpan."); } });
-                    renderStudentUI();
-                }
-            } else { showModal("Gagal", res.message); }
-        }
-
-        function navigate(view) { ['dashboard', 'library', 'task-flow'].forEach(v => document.getElementById(`view-student-${v}`)?.classList.add('hidden')); document.getElementById(`view-student-${view}`)?.classList.remove('hidden'); if(view === 'dashboard') renderStudentUI(); }
-        function renderStudentUI() {
-            if(!state.user) return;
-            document.getElementById('std-name').innerText = state.user.nama; document.getElementById('std-level-num').innerText = state.user.level; document.getElementById('std-exp-current').innerText = state.user.exp;
-            setTimeout(() => document.getElementById('std-exp-bar').style.width = Math.min((state.user.exp / (state.user.level * 1000)) * 100, 100) + '%', 100);
-            if(state.contentData.misi.length > 0) document.getElementById('mission-grid').innerHTML = state.contentData.misi.map(m => createCard(m, 'Misi')).join('');
-            renderLibraryItems(state.contentData.perpustakaan);
-        }
-        function renderLibraryItems(items) { document.getElementById('library-grid').innerHTML = items && items.length > 0 ? items.map(b => createCard(b, 'Perpustakaan')).join('') : ''; }
-        function filterLibrary() { const q = document.getElementById('lib-search').value.toLowerCase(); renderLibraryItems((state.contentData.perpustakaan || []).filter(b => b.Judul.toLowerCase().includes(q))); }
-        
-        function createCard(data, type) {
-            let totalPoin = (Number(data.Poin_Baca)||0) + (Number(data.Poin_Kuis)||0) + (Number(data.Poin_Jurnal)||0);
-            let badge = state.userLogs.some(l => l.kontenId === data.ID && l.tahap === 'Membaca') ? `<div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded shadow"><i class="fa-solid fa-check"></i> Dibaca</div>` : '';
+            showLoading: (text="Menghubungkan ke SPARK Core...") => {
+                document.getElementById('loadingText').innerText = text;
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+            },
+            hideLoading: () => document.getElementById('loadingOverlay').classList.add('hidden'),
             
-            // LOGIKA BATAS WAKTU (WAKTU RILIS)
-            let isLocked = false; let lockMsg = '';
-            if (data.Waktu_Rilis && type === 'Misi') {
-                let rilisDate = new Date(data.Waktu_Rilis);
-                // Set rilis date to start of day
-                rilisDate.setHours(0,0,0,0);
-                if (new Date() < rilisDate) { 
-                    isLocked = true; 
-                    lockMsg = `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white z-20 backdrop-blur-sm"><i class="fa-solid fa-lock text-3xl mb-2 text-red-400"></i><span class="text-xs font-bold text-center px-2">Terkunci hingga<br>${rilisDate.toLocaleDateString('id-ID')}</span></div>`; 
-                }
-            }
+            switchLoginRole: (role) => {
+                app.state.loginRole = role;
+                const isSiswa = role === 'siswa';
+                document.getElementById('btnRoleSiswa').className = `flex-1 py-2 text-sm md:text-base rounded-md ${isSiswa ? 'bg-neonBlue text-darker' : 'text-gray-400 hover:text-white'} font-bold transition`;
+                document.getElementById('btnRoleAdmin').className = `flex-1 py-2 text-sm md:text-base rounded-md ${!isSiswa ? 'bg-neonPurple text-white' : 'text-gray-400 hover:text-white'} font-bold transition`;
+                document.getElementById('loginTitle').innerText = isSiswa ? "Portal Siswa" : "Portal Admin";
+                document.getElementById('loginTitle').className = `text-lg md:text-xl font-bold mb-4 brand-font ${isSiswa ? 'text-neonBlue' : 'text-neonPurple'}`;
+            },
 
-            let clickAction = isLocked ? `showModal('Akses Ditolak', 'Misi ini baru bisa dibuka pada ${new Date(data.Waktu_Rilis).toLocaleDateString('id-ID')}')` : `initTask('${type}', '${data.ID}')`;
-            let isAi = data.Kategori === 'Cerita AI';
-            let iconType = isAi ? '<i class="fa-solid fa-wand-magic-sparkles text-spark-blue"></i> AI Story' : type;
-            let imgUrl = data.Thumbnail_URL || (isAi ? 'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=400&q=80' : 'https://via.placeholder.com/400x200/2d1b4e/ffffff?text=Arsip');
+            switchView: (viewId) => {
+                ['viewLogin', 'viewStudent', 'viewReading', 'viewQuiz', 'viewJournal', 'viewAdmin'].forEach(id => document.getElementById(id).classList.add('hidden'));
+                document.getElementById(viewId).classList.remove('hidden');
+                document.getElementById('navbar').classList.toggle('hidden', viewId === 'viewLogin');
+            },
 
-            return `<div class="bg-space-800 rounded-2xl border border-space-600 overflow-hidden flex flex-col ${isLocked ? '' : 'card-hover cursor-pointer'} relative" onclick="${clickAction}"><div class="card-img-wrapper">${badge}${lockMsg}<div class="absolute top-2 left-2 bg-space-900/80 backdrop-blur text-spark-gold text-xs font-bold px-2 py-1 rounded z-10"><i class="fa-solid fa-star"></i> ${totalPoin} XP</div><img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x200/2d1b4e/ffffff?text=No+Image'"></div><div class="p-4 flex flex-col flex-grow"><p class="text-xs text-spark-blue font-bold mb-1">${data.Kategori}</p><h4 class="text-lg font-bold mb-3 line-clamp-2">${data.Judul}</h4><div class="mt-auto flex justify-between items-center text-xs text-gray-400"><span><i class="fa-regular fa-clock"></i> ${data.Min_Waktu_Baca_Menit || 5} Mnt</span><span class="bg-space-600 px-2 py-1 rounded text-white font-bold">${iconType}</span></div></div></div>`;
-        }
+            switchTab: (tab) => {
+                document.getElementById('contentMissions').classList.toggle('hidden', tab !== 'missions');
+                document.getElementById('contentLibrary').classList.toggle('hidden', tab !== 'library');
+                document.getElementById('tabMissions').className = tab === 'missions' ? "text-neonBlue font-bold border-b-2 border-neonBlue px-3 py-2 text-sm md:text-base brand-font" : "text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition";
+                document.getElementById('tabLibrary').className = tab === 'library' ? "text-neonBlue font-bold border-b-2 border-neonBlue px-3 py-2 text-sm md:text-base brand-font" : "text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition";
+            },
 
-        // 5. TASK FLOW & AI READER
-        function initTask(type, contentId) {
-            const arr = type === 'Misi' ? state.contentData.misi : state.contentData.perpustakaan;
-            state.currentTask.data = arr.find(x => x.ID === contentId); state.currentTask.type = type;
-            
-            document.getElementById('fs-read-title').innerText = state.currentTask.data.Judul;
-            document.getElementById('ai-story-title').innerText = state.currentTask.data.Judul;
-            
-            // Cek apakah ini Cerita AI JSON atau Teks Biasa
-            let isAiStory = state.currentTask.data.Kategori === 'Cerita AI';
-            if (isAiStory) {
-                document.getElementById('standard-reader').classList.add('hidden');
-                document.getElementById('ai-reader').classList.remove('hidden');
-                try {
-                    aiStoryState.json = JSON.parse(state.currentTask.data.Teks_Bacaan);
-                    aiStoryState.currentPageId = "1";
-                    aiStoryState.path = "";
-                    renderAiStoryPage();
-                } catch(e) { showModal("Error", "Format cerita AI rusak."); return; }
-            } else {
-                document.getElementById('ai-reader').classList.add('hidden');
-                document.getElementById('standard-reader').classList.remove('hidden');
-                document.getElementById('fs-read-content').innerHTML = state.currentTask.data.Teks_Bacaan || "Arsip kosong";
-            }
-
-            navigate('task-flow'); startReadingStep();
-        }
-
-        function renderAiStoryPage() {
-            let pageData = aiStoryState.json.pages.find(p => p.id === aiStoryState.currentPageId);
-            if(!pageData) return;
-            
-            // Set Text & Image
-            document.getElementById('ai-story-text').innerText = pageData.text;
-            document.getElementById('ai-img-loading').classList.remove('hidden');
-            let imgEl = document.getElementById('ai-story-img');
-            imgEl.classList.add('hidden');
-            // Gunakan pollinations.ai untuk generate gambar dari prompt
-            imgEl.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(pageData.img_prompt + ", colorful children book illustration style, detailed")}?width=800&height=400&nologo=true`;
-            
-            // Navigasi & Percabangan
-            document.getElementById('ai-page-num').innerText = aiStoryState.currentPageId.replace(/[ab]/g, '');
-            let isBranchingPage = pageData.id === "6" && pageData.choice_a;
-            let isEndPage = pageData.id === "10" || pageData.id === "10a" || pageData.id === "10b";
-
-            document.getElementById('ai-choices').classList.toggle('hidden', !isBranchingPage);
-            document.getElementById('ai-nav-btns').classList.toggle('hidden', isBranchingPage);
-            
-            if(isBranchingPage) {
-                document.getElementById('ai-btn-a').innerText = pageData.choice_a;
-                document.getElementById('ai-btn-b').innerText = pageData.choice_b;
-            }
-
-            document.getElementById('ai-btn-prev').classList.toggle('hidden', pageData.id === "1");
-            document.getElementById('ai-btn-next').classList.toggle('hidden', isEndPage);
-        }
-
-        function aiStoryChoice(choice) {
-            aiStoryState.path = choice; // 'a' atau 'b'
-            aiStoryState.currentPageId = "7" + choice;
-            renderAiStoryPage();
-        }
-
-        function aiStoryNav(dir) {
-            let currentNum = parseInt(aiStoryState.currentPageId);
-            let nextNum = currentNum + dir;
-            aiStoryState.currentPageId = nextNum.toString() + aiStoryState.path;
-            renderAiStoryPage();
-        }
-
-        function switchTaskView(step) { ['reading', 'quiz', 'journal'].forEach(s => document.getElementById(`step-${s}`)?.classList.add('hidden')); document.getElementById(`step-${step}`)?.classList.remove('hidden'); }
-        function startReadingStep() {
-            switchTaskView('reading'); let minSeconds = (Number(state.currentTask.data.Min_Waktu_Baca_Menit) || 5) * 60; state.timeSpent = 0;
-            const btn = document.getElementById('btn-fs-finish'); const timerTxt = document.getElementById('fs-read-timer'); btn.disabled = true; btn.classList.replace('bg-spark-blue', 'bg-gray-400');
-            clearInterval(state.timer);
-            state.timer = setInterval(() => {
-                state.timeSpent++; let m = Math.floor(state.timeSpent/60).toString().padStart(2,'0'); let s = (state.timeSpent%60).toString().padStart(2,'0');
-                timerTxt.innerText = state.timeSpent < minSeconds ? `${m}:${s} / Target: ${Math.floor(minSeconds/60)} Mnt` : `${m}:${s} - Waktu Cukup!`;
-                if(state.timeSpent === minSeconds) { btn.disabled = false; btn.classList.replace('bg-gray-400', 'bg-spark-blue'); }
-            }, 1000);
-        }
-        function completeStepReading() {
-            clearInterval(state.timer); const points = state.currentTask.data.Poin_Baca || 0;
-            apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Membaca', poin: points, waktuDetik: state.timeSpent }).then(r => { if(r.success) updateUserLocal(r); });
-            state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Membaca'}); triggerCoin(points);
-            state.currentTask.type === 'Misi' ? startQuizStep() : startJournalStep();
-        }
-        function startQuizStep() { switchTaskView('quiz'); document.getElementById('quiz-question').innerText = state.currentTask.data.Pertanyaan_Kuis || "Apa yang kamu pelajari?"; document.getElementById('quiz-answer').value = ''; }
-        async function completeStepQuiz() {
-            const ans = document.getElementById('quiz-answer').value.trim(); if(ans.length < 5) return showModal("Perhatian", "Terlalu pendek.");
-            const points = state.currentTask.data.Poin_Kuis || 0;
-            showModal("Loading...", "Menyimpan kuis...");
-            const res = await apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Kuis', poin: points, jawaban: ans });
-            closeMessage(); if(res.success) { updateUserLocal(res); state.userLogs.push({kontenId: state.currentTask.data.ID, tahap: 'Kuis'}); triggerCoin(points); setTimeout(()=>startJournalStep(), 800); } else showModal("Gagal", res.message);
-        }
-        function startJournalStep() { switchTaskView('journal'); document.getElementById('journal-question').innerText = state.currentTask.data.Pertanyaan_Jurnal || "Apa pesan moralnya?"; document.getElementById('journal-answer').value = ''; }
-        async function completeStepJournal() {
-            const ans = document.getElementById('journal-answer').value.trim(); if(ans.length < 10) return showModal("Perhatian", "Minimal 10 karakter.");
-            const points = state.currentTask.data.Poin_Jurnal || 0;
-            showModal("Loading...", "Menyimpan jurnal...");
-            const res = await apiCall('saveActivity', { siswaId: state.user.id, tipeKonten: state.currentTask.type, kontenId: state.currentTask.data.ID, tahap: 'Jurnal', poin: points, jawaban: ans });
-            closeMessage(); if(res.success) { updateUserLocal(res); navigate('dashboard'); triggerCoin(points); setTimeout(()=>showModal("Misi Selesai!", "Tugas berhasil dikirim ke Admin."), 800); } else showModal("Gagal", res.message);
-        }
-        function updateUserLocal(r) { if(r.poinBaru) state.user.exp = r.poinBaru; if(r.levelBaru) state.user.level = r.levelBaru; }
-
-        // 6. ADMIN FUNCTIONS
-        function navAdmin(view) { ['dashboard', 'students', 'validation', 'ai-creator'].forEach(v => document.getElementById(`admin-view-${v}`)?.classList.add('hidden')); document.getElementById(`admin-view-${view}`)?.classList.remove('hidden'); if(view === 'validation') loadAdminJournals(); if(view === 'students') loadAdminStudents(); }
-        async function initAdmin() { const res = await apiCall('adminGetDashboard'); if(res.success) { document.getElementById('adm-stat-siswa').innerText = res.siswa.length; document.getElementById('adm-stat-misi').innerText = res.logs.length; } }
-        async function loadAdminStudents() { const tb = document.getElementById('adm-siswa-table'); tb.innerHTML = `<tr><td colspan="3" class="p-4">Memuat...</td></tr>`; const res = await apiCall('adminGetStudents'); if(res.success) tb.innerHTML = res.students.map(s => `<tr class="border-b"><td class="p-4 font-bold">${s.Nama}</td><td class="p-4 text-xs">${s.NISN}</td><td class="p-4 text-blue-600 font-bold">${s.Total_Poin} XP</td></tr>`).join(''); }
-        async function loadAdminJournals() { const tb = document.getElementById('adm-jurnal-table'); tb.innerHTML = `<tr><td colspan="4" class="p-4">Memuat...</td></tr>`; const res = await apiCall('adminGetJournals'); if(res.success) tb.innerHTML = res.journals.map(j => `<tr class="border-b"><td class="p-4 font-bold">${j.Siswa_ID}</td><td class="p-4 text-xs">${j.Konten_ID}</td><td class="p-4 text-sm italic">${j.Jawaban_Siswa}</td><td class="p-4 space-x-2"><button onclick="valJournal('${j.Timestamp}', 'Valid')" class="bg-green-500 text-white px-3 py-1 rounded">Terima</button></td></tr>`).join(''); else tb.innerHTML = `<tr><td colspan="4" class="p-4">Kosong</td></tr>`; }
-        function valJournal(ts, status) { apiCall('adminValidateJournal', {timestamp: ts, status: status}).then(r => loadAdminJournals()); }
-
-        // 7. STUDIO AI CREATOR ADMIN
-        async function generateAIStoryAdmin() {
-            const prompt = document.getElementById('ai-prompt').value;
-            const isBranching = document.querySelector('input[name="ai-branching"]:checked').value === "true";
-            
-            if(!prompt) return showModal("Error", "Tuliskan ide ceritanya dulu!");
-            
-            const btn = document.getElementById('btn-generate-ai');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles fa-beat mr-2"></i> AI SEDANG MENULIS CERITA... (Tunggu ~10 detik)`;
-            btn.disabled = true;
-
-            const res = await apiCall('generateAIStory', { prompt: prompt, isBranching: isBranching });
-            
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-
-            if (res.success && res.story && res.story.pages) {
-                generatedAIStoryData = res.story;
-                showModal("Berhasil!", "Cerita 10 halaman berhasil dibuat. Silakan lengkapi pengaturan rilis dan simpan.");
-                document.getElementById('ai-publish-panel').classList.remove('opacity-50', 'pointer-events-none');
+            login: async () => {
+                app.showLoading("Mengautentikasi...");
+                const u = document.getElementById('username').value.trim();
+                const p = document.getElementById('password').value.trim();
+                app.state.lastPassword = p;
                 
-                // Set default thumbnail menggunakan prompt gambar halaman 1
-                const firstImgPrompt = res.story.pages[0].img_prompt;
-                window.lastGeneratedThumb = `https://image.pollinations.ai/prompt/${encodeURIComponent(firstImgPrompt)}?width=400&height=200&nologo=true`;
-                document.getElementById('ai-save-judul').value = "Petualangan Seru"; // Bisa diedit user
-            } else {
-                showModal("Gagal", res.message || "Struktur JSON dari AI tidak sesuai, coba lagi.");
+                try {
+                    const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'login', username: u, password: p, role: app.state.loginRole }) });
+                    const data = await res.json();
+                    app.hideLoading();
+                    
+                    if(data.status === 'success') {
+                        app.currentUser = data.user;
+                        data.user.role === 'Admin' ? app.initAdmin() : app.initStudent();
+                    } else {
+                        Swal.fire('Gagal Login', data.message, 'error');
+                    }
+                } catch(e) { app.hideLoading(); Swal.fire('Error', 'Gagal menghubungi server.', 'error'); }
+            },
+
+            logout: () => {
+                app.currentUser = null; document.getElementById('loginForm').reset(); app.switchView('viewLogin');
+                document.getElementById('userStats').classList.add('hidden');
+            },
+
+            // --- Fungsi Refresh Data Baru ---
+            refreshData: async () => {
+                const icon = document.getElementById('refreshIcon');
+                icon.classList.add('fa-spin'); // Mulai animasi putar
+                
+                if (app.currentUser && app.currentUser.role === 'Siswa') {
+                    // Update secara hening (tanpa loading penuh)
+                    try {
+                        const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getStudentDashboard', userId: app.currentUser.id }) });
+                        const data = await res.json();
+                        if (data.status === 'success') {
+                            app.state.missions = data.missions || []; app.state.library = data.library || []; app.state.progress = data.progress || [];
+                            app.renderMissions(); app.renderLibrary();
+                            
+                            // Re-fetch login endpoint diam-diam untuk update poin (jika diubah admin dr sheet)
+                            const pass = app.state.lastPassword || document.getElementById('password').value.trim();
+                            if (pass) {
+                                const loginRes = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'login', username: app.currentUser.username, password: pass, role: 'siswa' }) });
+                                const loginData = await loginRes.json();
+                                if(loginData.status === 'success'){
+                                    app.currentUser = loginData.user;
+                                    document.getElementById('navLevel').innerText = app.currentUser.level || "1";
+                                    document.getElementById('navPoints').innerText = app.currentUser.points || "0";
+                                    document.getElementById('statBooks').innerText = app.currentUser.totalBuku || 0;
+                                    document.getElementById('statTime').innerText = app.currentUser.totalWaktu || 0;
+                                    document.getElementById('statStreak').innerText = app.currentUser.streak || 0;
+                                }
+                            }
+                        }
+                    } catch(e) { console.error('Gagal refresh', e); }
+                } else if (app.currentUser && app.currentUser.role === 'Admin') {
+                    // Untuk admin saat ini tidak ada load data dashboard spesifik, hanya mockup.
+                    // Bisa ditambahkan fetch data statistik jika ada.
+                    await new Promise(r => setTimeout(r, 800));
+                }
+                
+                icon.classList.remove('fa-spin'); // Berhenti putar
+            },
+
+            initStudent: async () => {
+                document.getElementById('userStats').classList.remove('hidden');
+                document.getElementById('navLevel').innerText = app.currentUser.level || "1";
+                document.getElementById('navPoints').innerText = app.currentUser.points || "0";
+                app.switchView('viewStudent');
+                
+                app.showLoading("Mengambil Misi Terbaru...");
+                try {
+                    const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getStudentDashboard', userId: app.currentUser.id }) });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        app.state.missions = data.missions || []; app.state.library = data.library || []; app.state.progress = data.progress || [];
+                        app.renderMissions(); app.renderLibrary();
+                        
+                        document.getElementById('statBooks').innerText = app.currentUser.totalBuku || 0;
+                        document.getElementById('statTime').innerText = app.currentUser.totalWaktu || 0;
+                        document.getElementById('statStreak').innerText = app.currentUser.streak || 0;
+                    }
+                    app.hideLoading();
+                } catch(e) { app.hideLoading(); Swal.fire('Error', 'Gagal mengambil data dari Google Sheets.', 'error'); }
+            },
+
+            renderMissions: () => {
+                document.getElementById('contentMissions').innerHTML = app.state.missions.map(m => {
+                    const pts = m.points || {};
+                    const totalPoints = (parseInt(pts.read)||0) + (parseInt(pts.quiz)||0) + (parseInt(pts.journal)||0);
+                    const prog = app.state.progress.find(p => String(p.itemId) === String(m.id));
+                    let statusHtml = '';
+                    if(prog) {
+                        if(prog.journal === 1) statusHtml = '<span class="text-green-400 text-xs"><i class="fas fa-check-circle"></i> Selesai Semua</span>';
+                        else if(prog.quiz === 1) statusHtml = '<span class="text-yellow-400 text-xs"><i class="fas fa-pen-nib"></i> Jurnal Tertunda</span>';
+                        else if(prog.read === 1) statusHtml = '<span class="text-orange-400 text-xs"><i class="fas fa-question-circle"></i> Kuis Tertunda</span>';
+                    }
+
+                    return `
+                    <div class="glass-panel overflow-hidden flex flex-col group cursor-pointer hover:neon-border-blue transition-all relative" onclick="app.startTask('${m.id}', 'mission')">
+                        <div class="h-32 md:h-40 overflow-hidden relative">
+                            <img src="${m.thumbnail}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            <div class="absolute top-2 right-2 bg-dark/80 px-2 py-1 rounded text-[10px] md:text-xs text-neonBlue font-bold border border-neonBlue">
+                                <i class="fas fa-coins text-yellow-400"></i> Max +${totalPoints}
+                            </div>
+                        </div>
+                        <div class="p-3 md:p-4 flex-grow flex flex-col">
+                            <h3 class="font-bold text-base md:text-lg mb-1 leading-tight">${m.title}</h3>
+                            <div class="mb-2">${statusHtml}</div>
+                            <div class="flex gap-2 text-[10px] md:text-xs text-gray-400 mt-auto">
+                                <span class="bg-gray-800 px-2 py-1 rounded"><i class="fas fa-clock text-neonBlue"></i> Min ${m.minTime} mnt</span>
+                            </div>
+                        </div>
+                    </div>`
+                }).join('');
+            },
+
+            renderLibrary: () => { /* Placeholder */ },
+
+            startTask: async (id, type) => {
+                app.state.taskType = type;
+                app.state.currentTask = app.state.missions.find(m => String(m.id) === String(id));
+                const prog = app.state.progress.find(p => String(p.itemId) === String(id)) || { read: 0, quiz: 0, journal: 0 };
+
+                if (prog.journal === 1) {
+                    const result = await Swal.fire({ title: 'Sudah Selesai!', text: 'Kamu sudah menyelesaikan semua tugas di buku ini. Mau baca lagi? (Tidak ada tambahan poin).', icon: 'info', showCancelButton: true, confirmButtonText: 'Baca Ulang', cancelButtonText: 'Kembali', background: '#0f172a', color: '#fff' });
+                    if(result.isConfirmed) app.initReadingMode(true);
+                    return;
+                }
+                
+                if (prog.read === 1 && prog.quiz === 0) {
+                    const result = await Swal.fire({ title: 'Kuis Tertunda', text: 'Kamu belum mengerjakan kuis untuk buku ini.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Lanjut Kuis', cancelButtonText: 'Baca Ulang Buku', background: '#0f172a', color: '#fff' });
+                    if(result.isConfirmed) { app.loadQuiz(); return; }
+                    else { app.initReadingMode(true); return; }
+                }
+
+                if (prog.read === 1 && prog.quiz === 1 && prog.journal === 0) {
+                    const result = await Swal.fire({ title: 'Jurnal Tertunda', text: 'Kamu belum mengisi jurnal untuk buku ini.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Isi Jurnal', cancelButtonText: 'Baca Ulang Buku', background: '#0f172a', color: '#fff' });
+                    if(result.isConfirmed) { app.loadJournal(); return; }
+                    else { app.initReadingMode(true); return; }
+                }
+
+                Swal.fire({ title: 'Mulai Membaca?', text: `Target waktu baca: ${app.state.currentTask.minTime || 5} menit`, icon: 'info', showCancelButton: true, confirmButtonText: 'Mulai', confirmButtonColor: '#00f6ff', background: '#0f172a', color: '#fff' })
+                .then((result) => { if (result.isConfirmed) app.initReadingMode(false); });
+            },
+
+            initReadingMode: (isReread) => {
+                app.switchView('viewReading');
+                document.getElementById('readTitle').innerText = app.state.currentTask.title;
+                document.getElementById('targetTimeLabel').innerText = app.state.currentTask.minTime || 5;
+                
+                try {
+                    app.state.storyData = JSON.parse(app.state.currentTask.pdf);
+                    app.state.currentPageId = "1";
+                    app.renderStoryPage();
+                } catch(e) { document.getElementById('storyText').innerHTML = "Format buku tidak didukung."; }
+                
+                app.state.elapsedTime = 0;
+                app.state.isReread = isReread;
+                const minTimeSeconds = (app.state.currentTask.minTime || 5) * 60;
+                
+                const btnFinish = document.getElementById('btnFinishRead');
+                btnFinish.disabled = true;
+                btnFinish.className = "bg-gray-600 text-gray-400 px-3 py-1 md:py-2 rounded font-bold cursor-not-allowed transition text-xs md:text-sm";
+
+                app.updateTimerDisplay();
+                app.state.timerInterval = setInterval(() => {
+                    app.state.elapsedTime++;
+                    app.updateTimerDisplay();
+                    
+                    if (app.state.elapsedTime >= minTimeSeconds && btnFinish.disabled) {
+                        btnFinish.disabled = false;
+                        btnFinish.className = "neon-btn-green px-3 py-1 md:py-2 rounded font-bold cursor-pointer animate-pulse text-xs md:text-sm shadow-lg";
+                    }
+                }, 1000);
+            },
+
+            renderStoryPage: () => {
+                const page = app.state.storyData.find(p => String(p.id) === String(app.state.currentPageId));
+                if(!page) return;
+
+                document.getElementById('storyText').innerHTML = `<p>${page.text}</p>`;
+                document.getElementById('pageIndicator').innerText = `Hal. ${page.id}`;
+                
+                // Reset scroll otomatis ke atas
+                document.getElementById('storyScrollContainer').scrollTop = 0;
+                
+                const btnPrev = document.getElementById('btnPrevPage');
+                const btnNext = document.getElementById('btnNextPage');
+                const choicesDiv = document.getElementById('storyChoices');
+                
+                btnPrev.classList.toggle('hidden', page.id === "1");
+                choicesDiv.classList.add('hidden'); choicesDiv.innerHTML = '';
+                
+                if (page.choices && page.choices.length > 0) {
+                    btnNext.classList.add('hidden'); choicesDiv.classList.remove('hidden');
+                    page.choices.forEach(choice => {
+                        const btn = document.createElement('button');
+                        btn.className = "w-full text-left bg-dark border border-gray-500 p-3 md:p-4 rounded text-white hover:border-neonBlue hover:bg-gray-800 transition text-sm md:text-base";
+                        btn.innerText = choice.text;
+                        btn.onclick = () => { app.state.currentPageId = String(choice.next); app.renderStoryPage(); };
+                        choicesDiv.appendChild(btn);
+                    });
+                } else {
+                    btnNext.classList.toggle('hidden', !page.next);
+                }
+
+                const imgEl = document.getElementById('storyImage');
+                const placeholder = document.getElementById('storyImagePlaceholder');
+                if (page.imageData && page.imageData.startsWith('data:image')) {
+                    imgEl.src = page.imageData;
+                    imgEl.classList.remove('hidden'); placeholder.classList.add('hidden');
+                } else {
+                    imgEl.classList.add('hidden'); placeholder.classList.remove('hidden');
+                }
+            },
+
+            nextPage: () => { const page = app.state.storyData.find(p => String(p.id) === String(app.state.currentPageId)); if(page && page.next) { app.state.currentPageId = String(page.next); app.renderStoryPage(); } },
+            prevPage: () => {
+                const allIds = app.state.storyData.map(p => String(p.id));
+                const currentIndex = allIds.indexOf(String(app.state.currentPageId));
+                if(currentIndex > 0) { app.state.currentPageId = allIds[currentIndex - 1]; app.renderStoryPage(); }
+            },
+
+            updateTimerDisplay: () => {
+                const m = Math.floor(app.state.elapsedTime / 60).toString().padStart(2, '0');
+                const s = (app.state.elapsedTime % 60).toString().padStart(2, '0');
+                document.getElementById('timeText').innerText = `${m}:${s}`;
+            },
+
+            exitReading: () => { clearInterval(app.state.timerInterval); app.switchView('viewStudent'); },
+
+            finishReading: async () => {
+                clearInterval(app.state.timerInterval);
+                const minutesRead = Math.ceil(app.state.elapsedTime / 60);
+                const pts = app.state.isReread ? 0 : (parseInt(app.state.currentTask.points.read) || 0);
+
+                if (!app.state.isReread) {
+                    app.showLoading("Menyimpan Progres Membaca...");
+                    try {
+                        await fetch(GAS_URL, {
+                            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'saveProgress', userId: app.currentUser.id, itemId: app.state.currentTask.id, type: 'mission', activityType: 'read', pointsEarned: pts, readDuration: minutesRead })
+                        });
+                        app.currentUser.points += pts; document.getElementById('navPoints').innerText = app.currentUser.points;
+                        let p = app.state.progress.find(x => x.itemId === app.state.currentTask.id);
+                        if(p) { p.read = 1; } else { app.state.progress.push({itemId: app.state.currentTask.id, read: 1, quiz: 0, journal: 0}); }
+                    } catch(e) {}
+                    app.hideLoading();
+                }
+
+                Swal.fire({
+                    title: 'Membaca Selesai!',
+                    text: app.state.isReread ? `Waktu tercatat: ${minutesRead} menit.` : `Luar biasa! Kamu mendapat +${pts} Poin. Waktu baca tercatat: ${minutesRead} menit. Lanjut ke Kuis?`,
+                    icon: 'success', showCancelButton: true, confirmButtonText: 'Lanjut Kuis', cancelButtonText: 'Nanti Saja', background: '#0f172a', color: '#fff'
+                }).then((result) => {
+                    if (result.isConfirmed) { app.loadQuiz(); } else { app.switchView('viewStudent'); }
+                });
+            },
+
+            loadQuiz: () => {
+                app.switchView('viewQuiz');
+                try {
+                    app.state.quizData = JSON.parse(app.state.currentTask.quizJson);
+                    if(!app.state.quizData || app.state.quizData.length === 0) throw new Error();
+                } catch(e) {
+                    Swal.fire('Oops', 'Data kuis tidak tersedia.', 'info').then(() => app.loadJournal());
+                    return;
+                }
+                app.state.currentQuizIndex = 0;
+                app.state.quizScore = 0;
+                document.getElementById('quizScoreDisplay').innerText = "0";
+                app.renderQuizQuestion();
+            },
+
+            renderQuizQuestion: () => {
+                const qData = app.state.quizData[app.state.currentQuizIndex];
+                document.getElementById('quizCurrentNum').innerText = app.state.currentQuizIndex + 1;
+                document.getElementById('questionText').innerText = qData.question;
+                
+                const optContainer = document.getElementById('optionsContainer');
+                optContainer.innerHTML = '';
+                qData.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-dark border border-gray-600 p-3 md:p-4 rounded text-left hover:border-neonBlue transition text-white text-sm md:text-base";
+                    btn.innerText = String.fromCharCode(65 + idx) + ". " + opt;
+                    btn.onclick = () => app.submitQuizAnswer(idx);
+                    optContainer.appendChild(btn);
+                });
+            },
+
+            submitQuizAnswer: async (selectedIndex) => {
+                const qData = app.state.quizData[app.state.currentQuizIndex];
+                const isCorrect = (selectedIndex === qData.answerIndex);
+                
+                if(isCorrect) {
+                    app.state.quizScore += 5; 
+                    document.getElementById('quizScoreDisplay').innerText = app.state.quizScore;
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: '+5 Poin!', showConfirmButton: false, timer: 1500 });
+                } else {
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Kurang Tepat', showConfirmButton: false, timer: 1500 });
+                }
+
+                app.state.currentQuizIndex++;
+                if (app.state.currentQuizIndex < app.state.quizData.length) {
+                    setTimeout(() => app.renderQuizQuestion(), 1500);
+                } else {
+                    app.showLoading("Menyimpan Skor Kuis...");
+                    try {
+                        await fetch(GAS_URL, {
+                            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ action: 'saveProgress', userId: app.currentUser.id, itemId: app.state.currentTask.id, type: 'mission', activityType: 'quiz', pointsEarned: app.state.quizScore })
+                        });
+                        app.currentUser.points += app.state.quizScore; document.getElementById('navPoints').innerText = app.currentUser.points;
+                        let p = app.state.progress.find(x => String(x.itemId) === String(app.state.currentTask.id));
+                        if(p) p.quiz = 1;
+                    } catch(e){}
+                    app.hideLoading();
+
+                    Swal.fire({ title: 'Kuis Selesai!', text: `Total Skor: ${app.state.quizScore}. Sekarang mari lengkapi Jurnal!`, icon: 'success', background: '#0f172a', color: '#fff' })
+                    .then(() => { app.loadJournal(); });
+                }
+            },
+
+            loadJournal: () => {
+                app.switchView('viewJournal');
+                document.getElementById('jrnJudul').value = app.state.currentTask.title;
+                document.getElementById('jrnTanggal').value = new Date().toISOString().split('T')[0];
+                document.getElementById('jrnHalaman').value = app.state.storyData ? app.state.storyData.length : '';
+                document.getElementById('jrnTokoh').value = ''; document.getElementById('jrnSifat').value = '';
+                document.getElementById('jrnMasalah').value = ''; document.getElementById('jrnSolusi').value = '';
+            },
+
+            submitJournal: async () => {
+                const formData = {
+                    judul: document.getElementById('jrnJudul').value, pengarang: document.getElementById('jrnPengarang').value,
+                    penerbit: document.getElementById('jrnPenerbit').value, jmlHalaman: document.getElementById('jrnHalaman').value,
+                    tanggal: document.getElementById('jrnTanggal').value, tokoh: document.getElementById('jrnTokoh').value,
+                    sifat: document.getElementById('jrnSifat').value, masalah: document.getElementById('jrnMasalah').value, solusi: document.getElementById('jrnSolusi').value
+                };
+
+                app.showLoading("Mengirim Jurnal...");
+                const pts = parseInt(app.state.currentTask.points.journal) || 0;
+
+                try {
+                    const res = await fetch(GAS_URL, {
+                        method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'submitJournal', userId: app.currentUser.id, itemId: app.state.currentTask.id, formData: formData, pointsEarned: pts })
+                    });
+                    const data = await res.json();
+                    app.hideLoading();
+
+                    if(data.status === 'success') {
+                        app.currentUser.points += pts; document.getElementById('navPoints').innerText = app.currentUser.points;
+                        let p = app.state.progress.find(x => String(x.itemId) === String(app.state.currentTask.id));
+                        if(p) p.journal = 1;
+
+                        Swal.fire({ title: 'Misi Tuntas!', text: `Luar Biasa! Kamu mendapat tambahan +${pts} Poin.`, icon: 'success', background: '#0f172a', color: '#fff' })
+                        .then(() => { app.initStudent(); });
+                    }
+                } catch(e) { app.hideLoading(); Swal.fire('Error', 'Gagal mengirim jurnal.', 'error'); }
+            },
+
+            // --- ADMIN & AI GENERATION ---
+            initAdmin: () => { app.switchView('viewAdmin'); app.showAdminTab('crud_missions'); },
+            showAdminTab: (tabId) => { document.querySelectorAll('.admin-content').forEach(el => el.classList.add('hidden')); document.getElementById('admin-' + tabId).classList.remove('hidden'); },
+
+            compressImage: (base64Str, maxWidth = 400, quality = 0.5) => {
+                return new Promise((resolve) => {
+                    if(!base64Str) resolve('');
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const scale = Math.min(maxWidth / img.width, 1);
+                        canvas.width = img.width * scale; canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.src = base64Str;
+                });
+            },
+
+            fetchWithRetry: async (url, options, retries = 5) => { let delay = 1000; for (let i = 0; i < retries; i++) { try { const response = await fetch(url, options); if (!response.ok) throw new Error(); return await response.json(); } catch (error) { if (i === retries - 1) throw error; await new Promise(res => setTimeout(res, delay)); delay *= 2; } } },
+            callGeminiText: async (promptText) => {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const payload = { contents: [{ parts: [{ text: promptText }] }], generationConfig: { responseMimeType: "application/json" } };
+                const result = await app.fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                let text = result.candidates[0].content.parts[0].text;
+                return JSON.parse(text.replace(/^```json\n?/i, '').replace(/\n?```$/i, '').trim());
+            },
+            callImagenAPI: async (promptText) => {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+                const payload = { instances: { prompt: promptText + " in colorful highly detailed 3D animation style for kids" }, parameters: { sampleCount: 1 } };
+                try {
+                    const result = await app.fetchWithRetry(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if(result && result.predictions && result.predictions[0]) return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                } catch(e) {}
+                return null;
+            },
+
+            generateAIStory: async () => {
+                const promptVal = document.getElementById('aiPrompt').value;
+                if (!promptVal) return Swal.fire('Input Kosong', 'Harap masukkan ide cerita.', 'warning');
+                
+                const isBranching = document.getElementById('aiBranching').checked;
+                const btnGen = document.getElementById('btnGenerateAI');
+                const statusDiv = document.getElementById('aiLoadingStatus');
+                const statusText = document.getElementById('aiStatusText');
+                
+                btnGen.classList.add('hidden'); statusDiv.classList.remove('hidden');
+
+                try {
+                    statusText.innerText = "Langkah 1/3: AI sedang memikirkan Alur Cerita & Soal...";
+                    let systemPrompt = `Buatkan cerita anak SD yang edukatif berdasarkan ide ini: "${promptVal}". `;
+                    if (isBranching) systemPrompt += `Cerita BERCABANG (Branching) dengan 10 halaman. Hal 1-5 linear. Di Hal 6, beri 2 pilihan (choices). Pilihan A ke 7A-10A. Pilihan B ke 7B-10B. `;
+                    else systemPrompt += `Cerita LINEAR 10 halaman berurutan (id "1" s/d "10"). `;
+                    
+                    systemPrompt += `Format respon WAJIB JSON Object murni:
+                    {
+                      "title": "Judul Cerita", "thumbnailPrompt": "English prompt for 3D kids book cover", 
+                      "pages": [ { "id": "1", "text": "Isi cerita...", "imagePrompt": "English prompt for scene", "next": "2" } ],
+                      "quiz": [ { "question": "Pertanyaan unsur intrinsik?", "options": ["A", "B", "C", "D"], "answerIndex": 0 } ]
+                    }`;
+
+                    const aiResult = await app.callGeminiText(systemPrompt);
+                    if (!aiResult.pages || !aiResult.quiz) throw new Error("Format JSON tidak valid");
+
+                    statusText.innerText = "Langkah 2/3: Menggambar Sampul Buku 3D...";
+                    let coverUrl = 'https://via.placeholder.com/300x200?text=SPARK+Story';
+                    if (aiResult.thumbnailPrompt) {
+                        const rawCover = await app.callImagenAPI(aiResult.thumbnailPrompt);
+                        coverUrl = await app.compressImage(rawCover, 400, 0.6);
+                    }
+
+                    statusText.innerText = "Langkah 3/3: Menggambar Ilustrasi per Halaman... (Agak lama, harap tunggu)";
+                    for(let i=0; i < aiResult.pages.length; i++) {
+                        statusText.innerText = `Menggambar Halaman ${i+1}/${aiResult.pages.length}...`;
+                        if(aiResult.pages[i].imagePrompt) {
+                            const rawImg = await app.callImagenAPI(aiResult.pages[i].imagePrompt);
+                            aiResult.pages[i].imageData = await app.compressImage(rawImg, 400, 0.5);
+                        }
+                    }
+
+                    document.getElementById('missionTitle').value = aiResult.title || "Misi AI SPARK";
+                    document.getElementById('missionStoryData').value = JSON.stringify(aiResult.pages);
+                    document.getElementById('missionQuizData').value = JSON.stringify(aiResult.quiz);
+                    document.getElementById('missionThumbnail').value = coverUrl;
+                    
+                    document.getElementById('btnSaveMission').disabled = false;
+                    document.getElementById('btnSaveMission').classList.remove('opacity-50', 'cursor-not-allowed');
+
+                    Swal.fire({ title: 'Sukses!', text: 'Cerita, Gambar 3D, dan 5 Soal berhasil digenerate!', imageUrl: coverUrl, imageWidth: 200, icon: 'success' });
+
+                } catch (error) { Swal.fire('Gagal!', 'Terjadi kesalahan. Coba lagi.', 'error'); console.error(error); } 
+                finally { btnGen.classList.remove('hidden'); statusDiv.classList.add('hidden'); }
+            },
+
+            saveNewMission: async () => {
+                const payload = {
+                    action: 'saveMission', title: document.getElementById('missionTitle').value, releaseDate: document.getElementById('missionRelease').value,
+                    minTime: document.getElementById('missionMinTime').value, storyData: JSON.parse(document.getElementById('missionStoryData').value),
+                    quizData: JSON.parse(document.getElementById('missionQuizData').value), thumbnail: document.getElementById('missionThumbnail').value,
+                    points: { read: 15, quiz: 0, journal: 10 }
+                };
+
+                if (!payload.releaseDate) return Swal.fire('Error', 'Pilih Tanggal Rilis', 'error');
+
+                app.showLoading("Menyimpan ke Database...");
+                try {
+                    const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    app.hideLoading();
+
+                    if(data.status === 'success') {
+                        Swal.fire('Berhasil!', data.message, 'success');
+                        document.getElementById('btnSaveMission').disabled = true;
+                        document.getElementById('btnSaveMission').classList.add('opacity-50', 'cursor-not-allowed');
+                    } else { Swal.fire('Error Database', data.message, 'error'); }
+                } catch(e) { app.hideLoading(); Swal.fire('Error Jaringan', 'Gagal menyimpan.', 'error'); }
             }
-        }
-
-        async function saveAIStoryToDB() {
-            if (!generatedAIStoryData) return;
-            
-            const data = {
-                judul: document.getElementById('ai-save-judul').value || "Cerita Tanpa Judul",
-                kategori: "Cerita AI",
-                thumb: window.lastGeneratedThumb || "",
-                teks: JSON.stringify(generatedAIStoryData), // Simpan JSON array ke DB
-                waktu: document.getElementById('ai-save-waktu').value,
-                p_baca: document.getElementById('ai-save-pb').value,
-                p_kuis: document.getElementById('ai-save-pk').value,
-                p_jurnal: document.getElementById('ai-save-pj').value,
-                rilis: document.getElementById('ai-save-rilis').value,
-                t_kuis: document.getElementById('ai-save-kuis').value,
-                k_kuis: "Tidak ada kunci (Esai AI)",
-                t_jurnal: document.getElementById('ai-save-jurnal').value
-            };
-
-            showModal("Menyimpan...", "Mengirim data ke database...");
-            const res = await apiCall('adminSaveContent', data);
-            closeMessage();
-
-            if (res.success) {
-                showModal("Berhasil!", res.message);
-                document.getElementById('ai-publish-panel').classList.add('opacity-50', 'pointer-events-none');
-                document.getElementById('ai-prompt').value = "";
-                generatedAIStoryData = null;
-            } else {
-                showModal("Gagal", res.message);
-            }
-        }
+        };
     </script>
 </body>
 </html>
