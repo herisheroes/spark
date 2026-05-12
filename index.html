@@ -1222,9 +1222,10 @@
 
                 try {
                     const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF('p', 'mm', 'a4'); // Portrait, A4 format
-                    const pageWidth = doc.internal.pageSize.getWidth();
-                    const pageHeight = doc.internal.pageSize.getHeight();
+                    // Format Landscape (l), satuan milimeter (mm), ukuran kertas A4
+                    const doc = new jsPDF('l', 'mm', 'a4'); 
+                    const pageWidth = doc.internal.pageSize.getWidth(); // Lebar A4 Landscape = 297mm
+                    const pageHeight = doc.internal.pageSize.getHeight(); // Tinggi A4 Landscape = 210mm
 
                     // Coba muat Logo SPARK untuk Header
                     let logoBase64 = null;
@@ -1238,83 +1239,202 @@
                         });
                     } catch(e) { console.warn("Logo gagal dimuat"); }
 
-                    const drawHeaderFooter = (pageNum) => {
-                        // Header (Bagian Atas)
-                        doc.setFillColor(2, 6, 23); // Warna latar gelap
+                    const drawHeaderFooter = (pdfPageNum) => {
+                        // --- Header (Bagian Atas) ---
+                        doc.setFillColor(2, 6, 23); // Warna latar gelap navy
                         doc.rect(0, 0, pageWidth, 25, 'F');
                         
                         if (logoBase64) {
-                            doc.addImage(logoBase64, 'PNG', 10, 2, 20, 20);
+                            doc.addImage(logoBase64, 'PNG', 15, 2, 20, 20);
                         }
                         
                         doc.setTextColor(0, 246, 255); // Warna teks biru neon
                         doc.setFontSize(16);
                         doc.setFont("helvetica", "bold");
-                        doc.text("SPARK", 35, 12);
+                        doc.text("SPARK", 40, 12);
                         
                         doc.setTextColor(200, 200, 200); // Warna teks abu-abu terang
-                        doc.setFontSize(9);
+                        doc.setFontSize(10);
                         doc.setFont("helvetica", "normal");
-                        doc.text("Smart Program for Active Reading", 35, 18);
+                        doc.text("Smart Program for Active Reading - Buku Cerita Interaktif", 40, 18);
 
-                        // Footer (Bagian Bawah)
+                        // --- Footer (Bagian Bawah) ---
                         doc.setFillColor(15, 23, 42); // Sedikit lebih terang dari header
-                        doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+                        doc.rect(0, pageHeight - 12, pageWidth, 12, 'F');
                         
                         doc.setTextColor(255, 255, 255);
                         doc.setFontSize(10);
-                        doc.text(`Halaman ${pageNum}`, pageWidth / 2, pageHeight - 6, { align: "center" });
+                        if (pdfPageNum !== "Sampul") {
+                            doc.text(`Lembar Cetak ${pdfPageNum}`, pageWidth / 2, pageHeight - 4, { align: "center" });
+                        }
                     };
 
-                    // ================= HALAMAN SAMPUL =================
+                    // ================= HALAMAN SAMPUL (Full Page) =================
                     drawHeaderFooter("Sampul");
                     
                     doc.setTextColor(0, 0, 0);
-                    doc.setFontSize(24);
+                    doc.setFontSize(26);
                     doc.setFont("helvetica", "bold");
                     const titleLines = doc.splitTextToSize(book.title, pageWidth - 40);
                     doc.text(titleLines, pageWidth / 2, 50, { align: "center" });
 
                     if (book.thumbnail && book.thumbnail.startsWith('data:image')) {
-                        // Ukuran lebar gambar cover proporsional
-                        const coverW = 120;
-                        const coverH = 160;
-                        doc.addImage(book.thumbnail, 'JPEG', (pageWidth - coverW) / 2, 70, coverW, coverH);
-                    } else {
-                        doc.setFontSize(14);
-                        doc.setFont("helvetica", "italic");
-                        doc.setTextColor(150, 150, 150);
-                        doc.text("(Tidak ada ilustrasi sampul)", pageWidth / 2, 130, { align: "center" });
+                        const coverW = 110;
+                        const coverH = 145;
+                        doc.addImage(book.thumbnail, 'JPEG', (pageWidth - coverW) / 2, 60, coverW, coverH);
                     }
 
-                    // ================= HALAMAN CERITA =================
+                    // ================= LOGIKA MENGURUTKAN HALAMAN & BRANCHING =================
                     let storyData = [];
                     try { storyData = JSON.parse(book.pdf); } catch(e) {}
 
-                    for (let i = 0; i < storyData.length; i++) {
-                        doc.addPage();
-                        drawHeaderFooter(i + 1); // Penomoran Halaman Asli Cerita
-                        
-                        const page = storyData[i];
-                        let currentY = 40; // Memulai kursor Y di bawah Header
-                        
-                        // Sisipkan Gambar Cerita jika ada
-                        if (page.imageData && page.imageData.startsWith('data:image')) {
-                            const imgW = 130;
-                            const imgH = 90;
-                            doc.addImage(page.imageData, 'JPEG', (pageWidth - imgW) / 2, currentY, imgW, imgH);
-                            currentY += imgH + 15; // Dorong kursor teks ke bawah gambar
-                        }
+                    let printSequence = [];
+                    let visited = new Set();
+                    let pageMap = {};
+                    storyData.forEach(p => pageMap[p.id] = p);
+                    
+                    let curr = "1";
+                    let lastLinear = null;
 
-                        // Sisipkan Teks
-                        doc.setTextColor(0, 0, 0);
-                        doc.setFontSize(13);
-                        doc.setFont("helvetica", "normal");
-                        const textLines = doc.splitTextToSize(page.text || "Tidak ada teks pada halaman ini.", pageWidth - 40);
-                        doc.text(textLines, 20, currentY);
+                    // 1. Ekstrak Alur Utama / Linear
+                    while (curr && pageMap[curr]) {
+                        if (visited.has(curr)) break;
+                        visited.add(curr);
+                        let p = pageMap[curr];
+                        printSequence.push(p);
+                        lastLinear = p;
+                        
+                        // Jika menemukan halaman dengan pilihan (choices), hentikan loop linier
+                        if (p.choices && p.choices.length > 0) {
+                            break; 
+                        }
+                        curr = p.next;
                     }
 
-                    // Download File 
+                    // 2. Ekstrak Alur Percabangan (Jika Ada)
+                    if (lastLinear && lastLinear.choices && lastLinear.choices.length > 0) {
+                        lastLinear.choices.forEach((choice, idx) => {
+                            let branchName = idx === 0 ? "A" : "B";
+                            // Masukkan pseudo-page sebagai pembatas/judul rute cerita
+                            printSequence.push({ 
+                                isBranchHeader: true, 
+                                title: `ALUR CERITA ${branchName}\n(Jika pembaca memilih: "${choice.text}")` 
+                            });
+                            
+                            // Telusuri rute cabang ini
+                            let currB = choice.next;
+                            while (currB && pageMap[currB] && !visited.has(currB)) {
+                                visited.add(currB);
+                                printSequence.push(pageMap[currB]);
+                                currB = pageMap[currB].next;
+                            }
+                        });
+                    }
+
+                    // 3. Masukkan halaman sisa yang luput dari telusuran (Bypass Error)
+                    storyData.forEach(p => {
+                        if (!visited.has(p.id)) printSequence.push(p);
+                    });
+
+                    // ================= FUNGSI MENGGAMBAR 1/2 HALAMAN PDF =================
+                    const drawHalfPage = (pageData, startX, startY, maxWidth) => {
+                        // Jika ini adalah penanda awal rute Branching A / B
+                        if (pageData.isBranchHeader) {
+                            doc.setFillColor(0, 246, 255); 
+                            doc.rect(startX, startY + 50, maxWidth, 25, 'F');
+                            doc.setTextColor(2, 6, 23);
+                            doc.setFontSize(14);
+                            doc.setFont("helvetica", "bold");
+                            const splitTitle = doc.splitTextToSize(pageData.title, maxWidth - 10);
+                            doc.text(splitTitle, startX + maxWidth/2, startY + 60, {align: 'center', baseline: 'middle'});
+                            return;
+                        }
+
+                        let currentY = startY;
+
+                        // Teks Indikator "Halaman X"
+                        doc.setFontSize(14);
+                        doc.setFont("helvetica", "bold");
+                        doc.setTextColor(0, 100, 200); // Biru Akademik
+                        doc.text(`Halaman ${pageData.id}`, startX, currentY);
+                        currentY += 5;
+
+                        // Gambar Cerita (Rata Tengah dalam Kolom)
+                        if (pageData.imageData && pageData.imageData.startsWith('data:image')) {
+                            const imgW = 100;
+                            const imgH = 70;
+                            const imgX = startX + (maxWidth - imgW) / 2; // Hitung titik X tengah
+                            doc.addImage(pageData.imageData, 'JPEG', imgX, currentY, imgW, imgH);
+                            currentY += imgH + 8; // Tambah ruang ke bawah
+                        } else {
+                            currentY += 10;
+                        }
+
+                        // Isi Teks Cerita (Rapi, Justify & Menyesuaikan Lebar Kolom)
+                        doc.setTextColor(0, 0, 0);
+                        doc.setFontSize(11);
+                        doc.setFont("helvetica", "normal");
+                        
+                        const textStr = pageData.text || "Tidak ada teks pada halaman ini.";
+                        const textLines = doc.splitTextToSize(textStr, maxWidth);
+                        
+                        // Menggunakan align: justify agar teks rata kanan dan kiri
+                        doc.text(textStr, startX, currentY, { align: "justify", maxWidth: maxWidth });
+                        currentY += (textLines.length * 5) + 6; // Geser kursor Y ke bawah teks + margin
+
+                        // Tampilkan Pilihan Percabangan (Branching Choices) jika ada
+                        if (pageData.choices && pageData.choices.length > 0) {
+                            doc.setFontSize(12);
+                            doc.setFont("helvetica", "bold");
+                            doc.setTextColor(220, 38, 38); // Merah
+                            doc.text("Pertanyaan / Pilihan Petualangan:", startX, currentY);
+                            currentY += 6;
+                            
+                            doc.setFont("helvetica", "normal");
+                            doc.setTextColor(0, 0, 0);
+                            const choiceLabels = ["A", "B", "C", "D"]; // Menyiapkan label huruf
+                            pageData.choices.forEach((choice, idx) => {
+                                const label = choiceLabels[idx] || (idx + 1);
+                                
+                                // Keterangan instruksi halaman cabang yang lebih jelas
+                                const textToShow = `Pilihan ${label}: ${choice.text}\n(Keterangan: Jika menjawab ${label} pergi ke Halaman ${choice.next})`;
+                                const choiceText = doc.splitTextToSize(textToShow, maxWidth);
+                                
+                                // Pilihan tetap rata kiri agar mudah dibaca sebagai list
+                                doc.text(choiceText, startX, currentY, { align: "left" });
+                                currentY += (choiceText.length * 5) + 3; // Jarak antar pilihan
+                            });
+                        }
+                    };
+
+                    // ================= RENDER DOKUMEN (2 BUKU per 1 KERTAS PDF) =================
+                    let pdfPageNum = 1;
+                    for (let i = 0; i < printSequence.length; i += 2) {
+                        doc.addPage();
+                        drawHeaderFooter(pdfPageNum);
+                        
+                        // Buat Garis Pemisah Tengah Vertikal
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.5);
+                        doc.line(pageWidth / 2, 35, pageWidth / 2, pageHeight - 20);
+
+                        // Pengaturan Margin & Lebar Kolom
+                        const marginX = 15;
+                        const columnWidth = (pageWidth / 2) - (marginX * 1.5); // Memberi jarak agar tidak menempel di garis
+                        
+                        // Cetak Konten Bagian Kiri
+                        drawHalfPage(printSequence[i], marginX, 35, columnWidth);
+                        
+                        // Cetak Konten Bagian Kanan (jika masih ada sisa array)
+                        if (i + 1 < printSequence.length) {
+                            const rightColumnStartX = (pageWidth / 2) + (marginX / 2);
+                            drawHalfPage(printSequence[i+1], rightColumnStartX, 35, columnWidth);
+                        }
+                        
+                        pdfPageNum++;
+                    }
+
+                    // Eksekusi Download File 
                     doc.save(`e-Book_SPARK_${book.title.replace(/\s+/g, '_')}.pdf`);
                     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'PDF Berhasil Diunduh!', showConfirmButton: false, timer: 2000 });
 
