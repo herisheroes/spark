@@ -67,7 +67,10 @@
             <h1 class="text-xl md:text-2xl font-bold brand-font text-transparent bg-clip-text bg-gradient-to-r from-neonBlue to-neonPurple">SPARK</h1>
         </div>
         <div id="userStats" class="flex gap-3 md:gap-6 items-center hidden text-sm md:text-base">
-            <div class="text-center" title="Level Anda"><i class="fas fa-star text-yellow-400"></i> Lvl <span id="navLevel" class="font-bold text-white">1</span></div>
+            <div class="text-center bg-darker/60 px-3 py-1 rounded-full border border-yellow-500/30 flex items-center gap-2" title="Pangkat Level Anda">
+                <i class="fas fa-star text-yellow-400 text-xs"></i> 
+                <span id="navLevelName" class="font-bold text-white text-xs md:text-sm">Pemula Literasi</span>
+            </div>
             <div class="text-center" title="Poin SPARK"><i class="fas fa-coins text-neonGreen"></i> <span id="navPoints" class="font-bold text-white">0</span> SP</div>
             
             <button onclick="app.refreshData()" class="text-neonBlue hover:text-white transition ml-1 md:ml-2" title="Refresh Data">
@@ -151,7 +154,28 @@
 
         <!-- ================= DASHBOARD SISWA ================= -->
         <div id="viewStudent" class="w-full max-w-6xl hidden flex-col gap-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+                
+                <!-- Kartu Pangkat Level -->
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-yellow-400 w-full col-span-2">
+                    <div class="w-10 h-10 md:w-14 md:h-14 shrink-0 bg-darker/80 rounded-full p-1 border border-yellow-500 flex items-center justify-center overflow-hidden shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+                        <img id="statBadgeImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135695.png" alt="Badge" class="w-full h-full object-contain hover:scale-110 transition">
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-[10px] md:text-xs text-gray-400">Pangkat Lvl <span id="statLevelNum">1</span></p>
+                        <p class="text-sm md:text-base font-bold text-yellow-400 leading-tight truncate" id="statRankName">Pemula Literasi</p>
+                        <div class="w-full bg-gray-700 h-1.5 mt-1 rounded-full overflow-hidden" title="Progres Level">
+                            <div id="statLevelProgress" class="bg-gradient-to-r from-yellow-500 to-neonGreen h-full transition-all duration-500" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modifikasi Kartu Badges (Bisa Diklik) -->
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-neonPurple cursor-pointer hover:bg-darker/60 hover:shadow-[0_0_15px_#b026ff] transition group" onclick="app.showBadgeModal()" title="Klik untuk lihat Koleksi Badge">
+                    <div class="bg-purple-500/20 p-2 md:p-3 rounded-full group-hover:scale-110 transition duration-300"><i class="fas fa-medal text-neonPurple text-xl md:text-2xl"></i></div>
+                    <div><p class="text-[10px] md:text-xs text-gray-400">Koleksi Badges</p><p class="text-lg md:text-xl font-bold" id="statBadges">0</p></div>
+                </div>
+
                 <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-neonBlue">
                     <div class="bg-blue-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-book-open text-neonBlue text-xl md:text-2xl"></i></div>
                     <div><p class="text-[10px] md:text-xs text-gray-400">Buku Dibaca</p><p class="text-lg md:text-xl font-bold" id="statBooks">0</p></div>
@@ -160,17 +184,10 @@
                     <div class="bg-green-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-clock text-neonGreen text-xl md:text-2xl"></i></div>
                     <div><p class="text-[10px] md:text-xs text-gray-400">Waktu Baca</p><p class="text-lg md:text-xl font-bold"><span id="statTime">0</span> mnt</p></div>
                 </div>
-                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-yellow-400">
-                    <div class="bg-yellow-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-fire text-yellow-400 text-xl md:text-2xl"></i></div>
-                    <div><p class="text-[10px] md:text-xs text-gray-400">Streak</p><p class="text-lg md:text-xl font-bold"><span id="statStreak">0</span> Hari</p></div>
-                </div>
-                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-neonPurple">
-                    <div class="bg-purple-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-medal text-neonPurple text-xl md:text-2xl"></i></div>
-                    <div><p class="text-[10px] md:text-xs text-gray-400">Badges</p><p class="text-lg md:text-xl font-bold" id="statBadges">0</p></div>
-                </div>
+
             </div>
 
-            <div class="flex gap-2 md:gap-4 border-b border-gray-700 pb-2">
+            <div class="flex gap-2 md:gap-4 border-b border-gray-700 pb-2 mt-2">
                 <button onclick="app.switchTab('missions')" id="tabMissions" class="text-neonBlue font-bold border-b-2 border-neonBlue px-3 py-2 text-sm md:text-base brand-font">Misi Harian</button>
                 <button onclick="app.switchTab('library')" id="tabLibrary" class="text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition">Perpustakaan</button>
                 <button onclick="app.switchTab('leaderboard')" id="tabLeaderboard" class="text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition"><i class="fas fa-trophy mr-1 text-yellow-400"></i> Klasemen</button>
@@ -453,7 +470,7 @@
                             <h3 class="text-lg md:text-xl font-bold brand-font text-neonBlue">Dashboard Statistik</h3>
                             <select id="adminTimeFilter" onchange="app.renderAdminDashboard()" class="bg-dark border border-neonBlue text-neonBlue rounded px-3 py-1 outline-none text-sm font-bold brand-font">
                                 <option value="all">Semua Waktu</option>
-                                <option value="today">Hari Today</option>
+                                <option value="today">Hari Ini</option>
                                 <option value="week">Minggu Ini</option>
                                 <option value="month">Bulan Ini</option>
                             </select>
@@ -534,6 +551,20 @@
         </div>
     </div>
 
+    <!-- Modal Popup Koleksi Badges -->
+    <div id="badgeModal" class="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center hidden p-4">
+        <div class="glass-panel w-full max-w-4xl bg-dark p-0 overflow-hidden relative flex flex-col max-h-[90vh]">
+            <div class="bg-darker p-4 border-b border-neonPurple flex justify-between items-center shrink-0">
+                <h3 class="text-neonPurple font-bold brand-font text-lg"><i class="fas fa-medal mr-2"></i>Koleksi Badge SPARK</h3>
+                <button onclick="document.getElementById('badgeModal').classList.add('hidden')" class="text-red-500 hover:text-red-400"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <div id="badgeModalContent" class="p-4 md:p-6 overflow-y-auto flex-grow text-white">
+                <!-- Isi akan di-generate otomatis via JS -->
+            </div>
+        </div>
+    </div>
+
     <footer id="appFooter" class="w-full p-4 mt-auto bg-darker border-t border-gray-800 text-center text-sm text-gray-500 z-10 transition-opacity">
         <p class="brand-font tracking-widest text-neonBlue/50 mb-1">SPARK © 2026</p>
     </footer>
@@ -545,20 +576,157 @@
 
         const app = {
             currentUser: null,
-            adminChartInstance: null, // Menyimpan instance chart
+            adminChartInstance: null, 
             state: {
-                loginRole: 'siswa',
-                lastPassword: '',
+                loginRole: 'siswa', lastPassword: '',
                 missions: [], library: [], progress: [],
-                leaderboard: [], adminData: null,
+                leaderboard: [], adminData: null, levels: [], badges: [],
                 viewJournals: [], viewJournalIndex: 0,
                 currentTask: null, taskType: null,
                 timer: 0, timerInterval: null, elapsedTime: 0,
                 storyData: null, currentPageId: "1",
                 quizData: [], currentQuizIndex: 0, quizScore: 0,
                 fontSize: 18, autoRead: false, isSpeaking: false,
-                // State Paginasi Admin
                 bookSearchQuery: '', bookItemsPerPage: 10, bookCurrentPage: 1
+            },
+
+            // === FUNGSI MENDAPATKAN BADGES ===
+            getUnlockedBadges: () => {
+                if(!app.currentUser || !app.state.badges) return [];
+                const u = app.currentUser;
+                return app.state.badges.filter(b => {
+                    if(b.kategori === 'Buku') return (parseInt(u.totalBuku) || 0) >= b.target;
+                    if(b.kategori === 'Menit') return (parseInt(u.totalWaktu) || 0) >= b.target;
+                    if(b.kategori === 'Streak') return (parseInt(u.streak) || 0) >= b.target;
+                    if(b.kategori === 'Kuis') return (parseInt(u.totalKuis) || 0) >= b.target;
+                    return false;
+                });
+            },
+
+            // === FUNGSI UPDATE UI LEVEL & POIN & POP-UPS ===
+            updateUserUI: (oldUserStats = null) => {
+                if (!app.currentUser || app.currentUser.role !== 'Siswa') return;
+                
+                const pts = parseInt(app.currentUser.points) || 0;
+                
+                // Cari status level saat ini
+                let currentLvlObj = { level: 1, name: "Pemula Literasi", minPoints: 0, badge: "https://cdn-icons-png.flaticon.com/512/3135/3135695.png" };
+                let nextLvlObj = null;
+                
+                if (app.state.levels && app.state.levels.length > 0) {
+                    const sortedLevels = [...app.state.levels].sort((a,b) => a.minPoints - b.minPoints);
+                    for(let i=0; i < sortedLevels.length; i++) {
+                        if(pts >= sortedLevels[i].minPoints) {
+                            currentLvlObj = sortedLevels[i];
+                        } else {
+                            nextLvlObj = sortedLevels[i]; 
+                            break;
+                        }
+                    }
+                }
+
+                // Simpan state level ke dalam current user untuk referensi cache nanti
+                app.currentUser.levelInfo = currentLvlObj;
+
+                // Kalkulasi Persentase Progress Bar
+                let progressPct = 100;
+                if (nextLvlObj) {
+                    const range = nextLvlObj.minPoints - currentLvlObj.minPoints;
+                    const earned = pts - currentLvlObj.minPoints;
+                    progressPct = Math.min(100, Math.max(0, (earned / range) * 100));
+                }
+
+                // Update UI Element
+                if(document.getElementById('navLevelName')) document.getElementById('navLevelName').innerText = currentLvlObj.name;
+                if(document.getElementById('navPoints')) document.getElementById('navPoints').innerText = pts;
+                if(document.getElementById('statBooks')) document.getElementById('statBooks').innerText = app.currentUser.totalBuku || 0;
+                if(document.getElementById('statTime')) document.getElementById('statTime').innerText = app.currentUser.totalWaktu || 0;
+                if(document.getElementById('statStreak')) document.getElementById('statStreak').innerText = app.currentUser.streak || 0;
+                if(document.getElementById('statLevelNum')) document.getElementById('statLevelNum').innerText = currentLvlObj.level;
+                if(document.getElementById('statRankName')) document.getElementById('statRankName').innerText = currentLvlObj.name;
+                if(document.getElementById('statBadgeImg')) document.getElementById('statBadgeImg').src = currentLvlObj.badge || 'https://cdn-icons-png.flaticon.com/512/3135/3135695.png';
+                if(document.getElementById('statLevelProgress')) document.getElementById('statLevelProgress').style.width = progressPct + '%';
+
+                const unlockedBadges = app.getUnlockedBadges();
+                if(document.getElementById('statBadges')) document.getElementById('statBadges').innerText = unlockedBadges.length;
+
+                // --- SISTEM POPUP ANTRIAN UNTUK LEVEL DAN BADGES ---
+                let popupQueue = [];
+
+                if(oldUserStats && oldUserStats.levelInfo && currentLvlObj.level > oldUserStats.levelInfo.level) {
+                     popupQueue.push({
+                         title: 'PANGKAT NAIK!',
+                         html: `Selamat! Pangkatmu naik menjadi <br><b class="text-yellow-400 text-2xl mt-2 block">${currentLvlObj.name}</b>`,
+                         imageUrl: currentLvlObj.badge,
+                         imageWidth: 120, imageHeight: 120,
+                         background: '#0f172a', color: '#fff', confirmButtonColor: '#eab308'
+                     });
+                }
+
+                if(oldUserStats && oldUserStats.badgesCount !== undefined && unlockedBadges.length > oldUserStats.badgesCount) {
+                     const oldBadgeIds = oldUserStats.unlockedBadgeIds || [];
+                     const newBadges = unlockedBadges.filter(b => !oldBadgeIds.includes(b.id));
+                     if(newBadges.length > 0) {
+                         popupQueue.push({
+                             title: 'BADGE BARU!',
+                             html: `Koleksimu bertambah: <br><b class="text-neonGreen text-xl mt-2 block">${newBadges.map(b=>b.name).join('<br>')}</b>`,
+                             imageUrl: newBadges[0].image,
+                             imageWidth: 100, imageHeight: 100,
+                             background: '#0f172a', color: '#fff', confirmButtonColor: '#00ff88'
+                         });
+                     }
+                }
+
+                const showNextPopup = () => {
+                    if (popupQueue.length > 0) {
+                        const popupData = popupQueue.shift();
+                        Swal.fire(popupData).then(() => {
+                            setTimeout(showNextPopup, 400); // Beri jeda antar popup
+                        });
+                    }
+                };
+
+                if (popupQueue.length > 0) {
+                    setTimeout(showNextPopup, 600); // Mulai jalankan antrian pop up
+                }
+            },
+
+            // Tampilkan Modal UI Untuk Badge
+            showBadgeModal: () => {
+                if(!app.state.badges || app.state.badges.length === 0) return;
+                
+                const unlockedIds = app.getUnlockedBadges().map(b=>b.id);
+                const categories = ['Buku', 'Menit', 'Streak', 'Kuis'];
+                let html = '';
+                
+                categories.forEach(cat => {
+                    const catBadges = app.state.badges.filter(b => b.kategori === cat);
+                    if(catBadges.length === 0) return;
+                    
+                    html += `
+                        <h4 class="text-neonBlue font-bold border-b border-gray-600 pb-2 mb-4 mt-6 first:mt-0 uppercase tracking-wider"><i class="fas fa-layer-group mr-2"></i> Kategori: ${cat}</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    `;
+                    
+                    catBadges.forEach(b => {
+                        const isUnlocked = unlockedIds.includes(b.id);
+                        const opacity = isUnlocked ? 'opacity-100 scale-100 hover:scale-105' : 'opacity-40 grayscale scale-95';
+                        const border = isUnlocked ? 'border-neonPurple shadow-[0_0_15px_rgba(176,38,255,0.4)]' : 'border-gray-700';
+                        
+                        html += `
+                            <div class="bg-darker p-3 md:p-4 rounded-xl border ${border} flex flex-col items-center text-center transition-all ${opacity}">
+                                <img src="${b.image}" class="w-12 h-12 md:w-16 md:h-16 object-contain mb-3 drop-shadow-md">
+                                <p class="text-xs md:text-sm font-bold text-white leading-tight mb-1">${b.name}</p>
+                                <p class="text-[10px] md:text-xs text-gray-400">Target: ${b.target}</p>
+                                ${isUnlocked ? '<div class="mt-3 bg-neonGreen/20 text-neonGreen text-[10px] px-3 py-1 rounded-full font-bold border border-neonGreen/50"><i class="fas fa-check mr-1"></i> TERCAPAI</div>' : '<div class="mt-3 bg-gray-800 text-gray-500 text-[10px] px-3 py-1 rounded-full border border-gray-600"><i class="fas fa-lock mr-1"></i> TERKUNCI</div>'}
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                });
+                
+                document.getElementById('badgeModalContent').innerHTML = html;
+                document.getElementById('badgeModal').classList.remove('hidden');
             },
 
             showInfoTujuan: () => {
@@ -709,42 +877,52 @@
                 } catch(e) { app.hideLoading(); Swal.fire('Error', 'Gagal menghubungi server.', 'error'); }
             },
 
-            logout: () => {
-                app.currentUser = null; document.getElementById('loginForm').reset(); app.switchView('viewWelcome');
-                document.getElementById('userStats').classList.add('hidden');
-            },
-
-            // --- Fungsi Refresh Diperbarui agar memanggil UI UI dengan aman ---
+            // --- Fungsi Refresh (Dengan Penyimpanan Riwayat Lama Untuk Deteksi Perubahan) ---
             refreshData: async () => {
                 const icon = document.getElementById('refreshIcon');
                 icon.classList.add('fa-spin'); 
                 
                 if (app.currentUser && app.currentUser.role === 'Siswa') {
                     try {
+                        // REKAM STATS LAMA SEBELUM FETCH BARU!
+                        const oldUserStats = {
+                             levelInfo: app.currentUser.levelInfo,
+                             badgesCount: app.getUnlockedBadges().length,
+                             unlockedBadgeIds: app.getUnlockedBadges().map(b=>b.id)
+                        };
+
                         const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getStudentDashboard', userId: app.currentUser.id }) });
                         const data = await res.json();
+                        
                         if (data.status === 'success') {
-                            app.state.missions = data.missions || []; app.state.library = data.library || []; app.state.progress = data.progress || [];
+                            app.state.missions = data.missions || []; 
+                            app.state.library = data.library || []; 
+                            app.state.progress = data.progress || [];
                             app.state.leaderboard = data.leaderboard || [];
+                            app.state.levels = data.levels || [];
+                            app.state.badges = data.badges || [];
+                            
                             app.renderMissions(); app.renderLibrary(); app.renderLeaderboard();
                             
-                            const pass = app.state.lastPassword || "";
-                            if (pass) {
-                                const loginRes = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'login', username: app.currentUser.username, password: pass, role: 'siswa' }) });
-                                const loginData = await loginRes.json();
-                                if(loginData.status === 'success'){
-                                    app.currentUser = loginData.user;
-                                    document.getElementById('navLevel').innerText = app.currentUser.level || "1";
-                                    document.getElementById('navPoints').innerText = app.currentUser.points || "0";
-                                    document.getElementById('statBooks').innerText = app.currentUser.totalBuku || 0;
-                                    document.getElementById('statTime').innerText = app.currentUser.totalWaktu || 0;
-                                    document.getElementById('statStreak').innerText = app.currentUser.streak || 0;
+                            if (data.user) {
+                                app.currentUser = data.user;
+                                app.updateUserUI(oldUserStats);
+                            } else {
+                                // Fallback Fetch User Lagi
+                                const pass = app.state.lastPassword || "";
+                                if (pass) {
+                                    const loginRes = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'login', username: app.currentUser.username, password: pass, role: 'siswa' }) });
+                                    const loginData = await loginRes.json();
+                                    if(loginData.status === 'success'){
+                                        app.currentUser = loginData.user;
+                                        app.updateUserUI(oldUserStats);
+                                    }
                                 }
                             }
                         }
                     } catch(e) { console.error('Gagal refresh', e); }
                 } else if (app.currentUser && app.currentUser.role === 'Admin') {
-                    app.initAdmin(); // Refresh data admin
+                    app.initAdmin(); 
                 }
                 
                 setTimeout(() => { icon.classList.remove('fa-spin'); }, 800);
@@ -752,8 +930,6 @@
 
             initStudent: async () => {
                 document.getElementById('userStats').classList.remove('hidden');
-                document.getElementById('navLevel').innerText = app.currentUser.level || "1";
-                document.getElementById('navPoints').innerText = app.currentUser.points || "0";
                 app.switchView('viewStudent');
                 
                 app.showLoading("Mengambil Misi Terbaru...");
@@ -761,13 +937,17 @@
                     const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'getStudentDashboard', userId: app.currentUser.id }) });
                     const data = await res.json();
                     if (data.status === 'success') {
-                        app.state.missions = data.missions || []; app.state.library = data.library || []; app.state.progress = data.progress || [];
+                        app.state.missions = data.missions || []; 
+                        app.state.library = data.library || []; 
+                        app.state.progress = data.progress || [];
                         app.state.leaderboard = data.leaderboard || [];
-                        app.renderMissions(); app.renderLibrary(); app.renderLeaderboard();
+                        app.state.levels = data.levels || []; 
+                        app.state.badges = data.badges || [];
                         
-                        document.getElementById('statBooks').innerText = app.currentUser.totalBuku || 0;
-                        document.getElementById('statTime').innerText = app.currentUser.totalWaktu || 0;
-                        document.getElementById('statStreak').innerText = app.currentUser.streak || 0;
+                        if(data.user) app.currentUser = data.user;
+
+                        app.renderMissions(); app.renderLibrary(); app.renderLeaderboard();
+                        app.updateUserUI(null); // Null artinya inisialisasi awal tanpa popup naik level
                     }
                     app.hideLoading();
                 } catch(e) { app.hideLoading(); Swal.fire('Error', 'Gagal mengambil data dari Google Sheets.', 'error'); }
@@ -1089,7 +1269,7 @@
                             method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: JSON.stringify({ action: 'saveProgress', userId: app.currentUser.id, itemId: app.state.currentTask.id, type: 'mission', activityType: 'read', pointsEarned: pts, readDuration: minutesRead })
                         });
-                        await app.refreshData(); // Perbarui streak & level secara visual
+                        await app.refreshData(); // Perbarui streak, level & badge secara visual
                     } catch(e) {}
                     app.hideLoading();
                 }
@@ -1157,7 +1337,7 @@
                             method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                             body: JSON.stringify({ action: 'saveProgress', userId: app.currentUser.id, itemId: app.state.currentTask.id, type: 'mission', activityType: 'quiz', pointsEarned: app.state.quizScore })
                         });
-                        await app.refreshData(); // Perbarui poin secara visual
+                        await app.refreshData(); // Perbarui poin & badge secara visual
                     } catch(e){}
                     app.hideLoading();
 
@@ -1212,7 +1392,7 @@
                     if(data.status === 'success') {
                         app.state.adminData = data;
                         app.renderAdminDashboard();
-                        app.renderAdminBooks(); // Pastikan render buku dipanggil
+                        app.renderAdminBooks(); 
                     }
                 } catch(e) { console.error("Gagal load admin data", e); }
                 app.hideLoading();
@@ -1223,7 +1403,7 @@
                 document.getElementById('admin-' + tabId).classList.remove('hidden'); 
                 if (tabId === 'progress' && app.state.adminData) app.renderAdminDashboard();
                 if (tabId === 'manage_books' && app.state.adminData) {
-                    app.state.bookCurrentPage = 1; // reset paginasi saat buka tab
+                    app.state.bookCurrentPage = 1; 
                     app.renderAdminBooks();
                 }
             },
@@ -1250,13 +1430,11 @@
             renderAdminBooks: () => {
                 if(!app.state.adminData || !app.state.adminData.missions) return;
                 
-                // 1. Pencarian (Filter)
                 let filtered = app.state.adminData.missions;
                 if (app.state.bookSearchQuery) {
                     filtered = filtered.filter(b => b.title.toLowerCase().includes(app.state.bookSearchQuery));
                 }
 
-                // 2. Kalkulasi Paginasi
                 const totalItems = filtered.length;
                 const totalPages = Math.ceil(totalItems / app.state.bookItemsPerPage) || 1;
                 
@@ -1266,7 +1444,6 @@
                 const endIndex = startIndex + app.state.bookItemsPerPage;
                 const paginatedBooks = filtered.slice(startIndex, endIndex);
 
-                // 3. Render Tabel
                 const tbody = document.getElementById('adminBooksTable');
                 
                 if (paginatedBooks.length === 0) {
@@ -1293,7 +1470,6 @@
                     `).join('');
                 }
 
-                // 4. Render Info & Kontrol Paginasi
                 const infoEl = document.getElementById('adminBookPageInfo');
                 if(infoEl) {
                     infoEl.innerText = totalItems > 0 
@@ -1307,7 +1483,6 @@
                     html += `<button onclick="app.goToBookPage(${app.state.bookCurrentPage - 1})" class="px-2 py-1 rounded bg-darker border border-gray-600 hover:border-neonBlue text-white disabled:opacity-50" ${app.state.bookCurrentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
                     
                     for(let i = 1; i <= totalPages; i++) {
-                        // Logika batas visibilitas nomor halaman (titik-titik ...)
                         if(totalPages > 5 && i !== 1 && i !== totalPages && Math.abs(i - app.state.bookCurrentPage) > 1) {
                             if (i === 2 || i === totalPages - 1) html += `<span class="px-2 py-1 text-gray-500">...</span>`;
                             continue;
@@ -1330,12 +1505,10 @@
 
                 try {
                     const { jsPDF } = window.jspdf;
-                    // Format Landscape (l), satuan milimeter (mm), ukuran kertas A4
                     const doc = new jsPDF('l', 'mm', 'a4'); 
-                    const pageWidth = doc.internal.pageSize.getWidth(); // Lebar A4 Landscape = 297mm
-                    const pageHeight = doc.internal.pageSize.getHeight(); // Tinggi A4 Landscape = 210mm
+                    const pageWidth = doc.internal.pageSize.getWidth(); 
+                    const pageHeight = doc.internal.pageSize.getHeight(); 
 
-                    // Coba muat Logo SPARK untuk Header
                     let logoBase64 = null;
                     try {
                         const response = await fetch('https://raw.githubusercontent.com/herisheroes/spark/refs/heads/main/logo.png');
@@ -1345,29 +1518,27 @@
                             reader.onloadend = () => resolve(reader.result);
                             reader.readAsDataURL(blob);
                         });
-                    } catch(e) { console.warn("Logo gagal dimuat"); }
+                    } catch(e) {}
 
                     const drawHeaderFooter = (pdfPageNum) => {
-                        // --- Header (Bagian Atas) ---
-                        doc.setFillColor(2, 6, 23); // Warna latar gelap navy
+                        doc.setFillColor(2, 6, 23); 
                         doc.rect(0, 0, pageWidth, 25, 'F');
                         
                         if (logoBase64) {
                             doc.addImage(logoBase64, 'PNG', 15, 2, 20, 20);
                         }
                         
-                        doc.setTextColor(0, 246, 255); // Warna teks biru neon
+                        doc.setTextColor(0, 246, 255); 
                         doc.setFontSize(16);
                         doc.setFont("helvetica", "bold");
                         doc.text("SPARK", 40, 12);
                         
-                        doc.setTextColor(200, 200, 200); // Warna teks abu-abu terang
+                        doc.setTextColor(200, 200, 200); 
                         doc.setFontSize(10);
                         doc.setFont("helvetica", "normal");
                         doc.text("Smart Program for Active Reading - Buku Cerita Interaktif", 40, 18);
 
-                        // --- Footer (Bagian Bawah) ---
-                        doc.setFillColor(15, 23, 42); // Sedikit lebih terang dari header
+                        doc.setFillColor(15, 23, 42); 
                         doc.rect(0, pageHeight - 12, pageWidth, 12, 'F');
                         
                         doc.setTextColor(255, 255, 255);
@@ -1377,7 +1548,6 @@
                         }
                     };
 
-                    // ================= HALAMAN SAMPUL (Full Page) =================
                     drawHeaderFooter("Sampul");
                     
                     doc.setTextColor(0, 0, 0);
@@ -1392,7 +1562,6 @@
                         doc.addImage(book.thumbnail, 'JPEG', (pageWidth - coverW) / 2, 55, coverW, coverH);
                     }
 
-                    // ================= LOGIKA MENGURUTKAN HALAMAN & BRANCHING =================
                     let storyData = [];
                     try { storyData = JSON.parse(book.pdf); } catch(e) {}
 
@@ -1404,32 +1573,20 @@
                     let curr = "1";
                     let lastLinear = null;
 
-                    // 1. Ekstrak Alur Utama / Linear
                     while (curr && pageMap[curr]) {
                         if (visited.has(curr)) break;
                         visited.add(curr);
                         let p = pageMap[curr];
                         printSequence.push(p);
                         lastLinear = p;
-                        
-                        // Jika menemukan halaman dengan pilihan (choices), hentikan loop linier
-                        if (p.choices && p.choices.length > 0) {
-                            break; 
-                        }
+                        if (p.choices && p.choices.length > 0) break; 
                         curr = p.next;
                     }
 
-                    // 2. Ekstrak Alur Percabangan (Jika Ada)
                     if (lastLinear && lastLinear.choices && lastLinear.choices.length > 0) {
                         lastLinear.choices.forEach((choice, idx) => {
                             let branchName = idx === 0 ? "A" : "B";
-                            // Masukkan pseudo-page sebagai pembatas/judul rute cerita
-                            printSequence.push({ 
-                                isBranchHeader: true, 
-                                title: `ALUR CERITA ${branchName}\n(Jika pembaca memilih: "${choice.text}")` 
-                            });
-                            
-                            // Telusuri rute cabang ini
+                            printSequence.push({ isBranchHeader: true, title: `ALUR CERITA ${branchName}\n(Jika pembaca memilih: "${choice.text}")` });
                             let currB = choice.next;
                             while (currB && pageMap[currB] && !visited.has(currB)) {
                                 visited.add(currB);
@@ -1439,14 +1596,9 @@
                         });
                     }
 
-                    // 3. Masukkan halaman sisa yang luput dari telusuran (Bypass Error)
-                    storyData.forEach(p => {
-                        if (!visited.has(p.id)) printSequence.push(p);
-                    });
+                    storyData.forEach(p => { if (!visited.has(p.id)) printSequence.push(p); });
 
-                    // ================= FUNGSI MENGGAMBAR 1/2 HALAMAN PDF =================
                     const drawHalfPage = (pageData, startX, startY, maxWidth) => {
-                        // Jika ini adalah penanda awal rute Branching A / B
                         if (pageData.isBranchHeader) {
                             doc.setFillColor(0, 246, 255); 
                             doc.rect(startX, startY + 50, maxWidth, 25, 'F');
@@ -1460,25 +1612,22 @@
 
                         let currentY = startY;
 
-                        // Teks Indikator "Halaman X"
                         doc.setFontSize(14);
                         doc.setFont("helvetica", "bold");
-                        doc.setTextColor(0, 100, 200); // Biru Akademik
+                        doc.setTextColor(0, 100, 200); 
                         doc.text(`Halaman ${pageData.id}`, startX, currentY);
                         currentY += 5;
 
-                        // Gambar Cerita (Rata Tengah dalam Kolom)
                         if (pageData.imageData && pageData.imageData.startsWith('data:image')) {
                             const imgW = 100;
                             const imgH = 70;
-                            const imgX = startX + (maxWidth - imgW) / 2; // Hitung titik X tengah
+                            const imgX = startX + (maxWidth - imgW) / 2; 
                             doc.addImage(pageData.imageData, 'JPEG', imgX, currentY, imgW, imgH);
-                            currentY += imgH + 8; // Tambah ruang ke bawah
+                            currentY += imgH + 8; 
                         } else {
                             currentY += 10;
                         }
 
-                        // Isi Teks Cerita (Rapi, Justify & Menyesuaikan Lebar Kolom)
                         doc.setTextColor(0, 0, 0);
                         doc.setFontSize(11);
                         doc.setFont("helvetica", "normal");
@@ -1486,54 +1635,43 @@
                         const textStr = pageData.text || "Tidak ada teks pada halaman ini.";
                         const textLines = doc.splitTextToSize(textStr, maxWidth);
                         
-                        // Menggunakan align: justify agar teks rata kanan dan kiri
                         doc.text(textStr, startX, currentY, { align: "justify", maxWidth: maxWidth });
-                        currentY += (textLines.length * 5) + 6; // Geser kursor Y ke bawah teks + margin
+                        currentY += (textLines.length * 5) + 6; 
 
-                        // Tampilkan Pilihan Percabangan (Branching Choices) jika ada
                         if (pageData.choices && pageData.choices.length > 0) {
                             doc.setFontSize(12);
                             doc.setFont("helvetica", "bold");
-                            doc.setTextColor(220, 38, 38); // Merah
+                            doc.setTextColor(220, 38, 38); 
                             doc.text("Pertanyaan / Pilihan Petualangan:", startX, currentY);
                             currentY += 6;
                             
                             doc.setFont("helvetica", "normal");
                             doc.setTextColor(0, 0, 0);
-                            const choiceLabels = ["A", "B", "C", "D"]; // Menyiapkan label huruf
+                            const choiceLabels = ["A", "B", "C", "D"]; 
                             pageData.choices.forEach((choice, idx) => {
                                 const label = choiceLabels[idx] || (idx + 1);
-                                
-                                // Keterangan instruksi halaman cabang yang lebih jelas
                                 const textToShow = `Pilihan ${label}: ${choice.text}\n(Keterangan: Jika menjawab ${label} pergi ke Halaman ${choice.next})`;
                                 const choiceText = doc.splitTextToSize(textToShow, maxWidth);
-                                
-                                // Pilihan tetap rata kiri agar mudah dibaca sebagai list
                                 doc.text(choiceText, startX, currentY, { align: "left" });
-                                currentY += (choiceText.length * 5) + 3; // Jarak antar pilihan
+                                currentY += (choiceText.length * 5) + 3; 
                             });
                         }
                     };
 
-                    // ================= RENDER DOKUMEN (2 BUKU per 1 KERTAS PDF) =================
                     let pdfPageNum = 1;
                     for (let i = 0; i < printSequence.length; i += 2) {
                         doc.addPage();
                         drawHeaderFooter(pdfPageNum);
                         
-                        // Buat Garis Pemisah Tengah Vertikal
                         doc.setDrawColor(200, 200, 200);
                         doc.setLineWidth(0.5);
                         doc.line(pageWidth / 2, 35, pageWidth / 2, pageHeight - 20);
 
-                        // Pengaturan Margin & Lebar Kolom
                         const marginX = 15;
-                        const columnWidth = (pageWidth / 2) - (marginX * 1.5); // Memberi jarak agar tidak menempel di garis
+                        const columnWidth = (pageWidth / 2) - (marginX * 1.5); 
                         
-                        // Cetak Konten Bagian Kiri
                         drawHalfPage(printSequence[i], marginX, 35, columnWidth);
                         
-                        // Cetak Konten Bagian Kanan (jika masih ada sisa array)
                         if (i + 1 < printSequence.length) {
                             const rightColumnStartX = (pageWidth / 2) + (marginX / 2);
                             drawHalfPage(printSequence[i+1], rightColumnStartX, 35, columnWidth);
@@ -1542,7 +1680,6 @@
                         pdfPageNum++;
                     }
 
-                    // Eksekusi Download File 
                     doc.save(`e-Book_SPARK_${book.title.replace(/\s+/g, '_')}.pdf`);
                     Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'PDF Berhasil Diunduh!', showConfirmButton: false, timer: 2000 });
 
@@ -1693,7 +1830,6 @@
                 const ctx = document.getElementById('progressChart').getContext('2d');
                 if (app.adminChartInstance) app.adminChartInstance.destroy();
 
-                // Kelompokkan data 'read' berdasarkan tanggal
                 const dateMap = {};
                 filteredProgress.forEach(p => {
                     if (p.type === 'read') {
@@ -1702,7 +1838,6 @@
                     }
                 });
 
-                // Urutkan tanggal
                 const sortedDates = Object.keys(dateMap).sort();
                 const labels = sortedDates.map(d => {
                     const dt = new Date(d);
@@ -1710,7 +1845,6 @@
                 });
                 const dataPoints = sortedDates.map(d => dateMap[d]);
 
-                // Jika kosong, beri data dummy agar chart tidak error visual
                 if(labels.length === 0) { labels.push('Tidak ada data'); dataPoints.push(0); }
 
                 app.adminChartInstance = new Chart(ctx, {
@@ -1745,7 +1879,6 @@
             openJournalModal: (userId, userName) => {
                 if(!app.state.adminData) return;
                 
-                // Cari semua jurnal milik siswa ini
                 app.state.viewJournals = app.state.adminData.journals.filter(j => String(j.userId) === String(userId));
                 app.state.viewJournals.forEach(j => j.userName = userName); // Tempelkan nama
 
@@ -1806,9 +1939,8 @@
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 
-                // Styling PDF Sederhana
                 doc.setFontSize(20);
-                doc.setTextColor(0, 102, 204); // Biru
+                doc.setTextColor(0, 102, 204); 
                 doc.text("JURNAL PEMAHAMAN MEMBACA - SPARK", 15, 20);
                 
                 doc.setFontSize(12);
@@ -1851,7 +1983,6 @@
                 const splitMasalah = doc.splitTextToSize(j.masalah, 180);
                 doc.text(splitMasalah, 15, 138);
 
-                // Hitung Y pos berikutnya
                 let nextY = 138 + (splitMasalah.length * 6) + 6;
 
                 doc.setFont("helvetica", "bold");
@@ -1860,7 +1991,6 @@
                 const splitSolusi = doc.splitTextToSize(j.solusi, 180);
                 doc.text(splitSolusi, 15, nextY + 6);
 
-                // Simpan
                 doc.save(`Jurnal_${j.userName.replace(/\s+/g, '_')}_${j.judul.replace(/\s+/g, '_')}.pdf`);
             },
 
