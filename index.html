@@ -82,27 +82,51 @@
 
         <!-- ================= WELCOME SCREEN ================= -->
         <div id="viewWelcome" class="w-full flex-grow flex flex-col items-center justify-center z-10 min-h-[75vh]">
-            <div class="text-center animate-[float_6s_ease-in-out_infinite] flex flex-col items-center">
+            <div class="text-center flex flex-col items-center relative">
+                
+                <!-- Logos Kemitraan / Institusi -->
+                <div class="flex gap-6 mb-6 justify-center items-center">
+                    <img src="https://raw.githubusercontent.com/herisheroes/simulasitka/refs/heads/main/tutwuri2.png" alt="Tutwuri Handayani" class="w-14 h-14 md:w-20 md:h-20 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+                    <img src="https://raw.githubusercontent.com/herisheroes/simulasitka/refs/heads/main/logo_UPI.png" alt="Logo UPI" class="w-14 h-14 md:w-20 md:h-20 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
+                </div>
+
                 <!-- Glow effect behind text -->
-                <div class="absolute w-40 h-40 bg-neonBlue/20 rounded-full blur-[80px] -z-10"></div>
+                <div class="absolute w-40 h-40 bg-neonBlue/20 rounded-full blur-[80px] -z-10 mt-20"></div>
                 
                 <img src="https://raw.githubusercontent.com/herisheroes/spark/refs/heads/main/logo.png" alt="SPARK Logo" class="w-32 h-32 md:w-48 md:h-48 mb-6 object-contain drop-shadow-[0_0_15px_rgba(0,246,255,0.8)]">
                 <h1 class="text-6xl md:text-8xl lg:text-9xl font-extrabold brand-font mb-4 text-transparent bg-clip-text bg-gradient-to-r from-neonBlue via-neonPurple to-neonGreen drop-shadow-[0_0_15px_rgba(0,246,255,0.6)]">SPARK</h1>
-                <p class="text-gray-200 mb-12 text-lg md:text-2xl max-w-lg font-semibold tracking-widest uppercase drop-shadow-md">Smart Program for Active Reading</p>
+                <p class="text-gray-200 mb-10 text-lg md:text-2xl max-w-lg font-semibold tracking-widest uppercase drop-shadow-md">Smart Program for Active Reading</p>
                 
-                <button onclick="app.switchView('viewLogin')" class="group relative px-8 py-4 md:px-12 md:py-5 font-bold text-lg md:text-xl rounded-full bg-darker/60 text-neonBlue border-2 border-neonBlue overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-[0_0_40px_#00f6ff] backdrop-blur-md">
-                    <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-neonBlue to-neonPurple opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
-                    <div class="absolute -inset-1 bg-gradient-to-r from-neonBlue to-neonPurple rounded-full blur opacity-20 group-hover:opacity-70 transition duration-300 -z-10"></div>
-                    <span class="relative z-10 brand-font flex items-center gap-3 tracking-widest drop-shadow-[0_0_8px_rgba(0,246,255,1)]">
-                        MULAI BERPETUALANG <i class="fas fa-space-shuttle animate-pulse"></i>
-                    </span>
-                </button>
+                <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+                    <button onclick="app.switchView('viewLogin')" class="group relative px-8 py-4 md:px-12 md:py-5 font-bold text-lg md:text-xl rounded-full bg-darker/60 text-neonBlue border-2 border-neonBlue overflow-hidden transition-all duration-300 hover:scale-110 hover:shadow-[0_0_40px_#00f6ff] backdrop-blur-md">
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-neonBlue to-neonPurple opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+                        <div class="absolute -inset-1 bg-gradient-to-r from-neonBlue to-neonPurple rounded-full blur opacity-20 group-hover:opacity-70 transition duration-300 -z-10"></div>
+                        <span class="relative z-10 brand-font flex items-center gap-3 tracking-widest drop-shadow-[0_0_8px_rgba(0,246,255,1)]">
+                            MULAI BERPETUALANG <i class="fas fa-space-shuttle animate-pulse"></i>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Tombol Informasi Tambahan -->
+                <div class="flex gap-3 md:gap-4 mt-8 flex-wrap justify-center">
+                    <button onclick="app.showInfoTujuan()" class="text-gray-300 hover:text-neonBlue transition flex items-center gap-2 bg-darker/50 px-4 py-2 rounded-full border border-gray-700 hover:border-neonBlue backdrop-blur-sm text-sm">
+                        <i class="fas fa-info-circle"></i> Tujuan Pembelajaran
+                    </button>
+                    <button onclick="app.showInfoPengembang()" class="text-gray-300 hover:text-neonPurple transition flex items-center gap-2 bg-darker/50 px-4 py-2 rounded-full border border-gray-700 hover:border-neonPurple backdrop-blur-sm text-sm">
+                        <i class="fas fa-user-tie"></i> Pengembang
+                    </button>
+                </div>
+
             </div>
         </div>
 
         <!-- ================= LOGIN ================= -->
         <div id="viewLogin" class="glass-panel w-full max-w-md p-6 md:p-8 mt-10 flex flex-col items-center hidden">
-            <img src="https://raw.githubusercontent.com/herisheroes/spark/refs/heads/main/logo.png" alt="SPARK Logo" class="w-20 h-20 md:w-24 md:h-24 mb-4 object-contain drop-shadow-[0_0_10px_rgba(0,246,255,0.6)]">
+            <div class="flex items-center justify-center gap-4 mb-4">
+                <img src="https://raw.githubusercontent.com/herisheroes/simulasitka/refs/heads/main/tutwuri2.png" alt="Tutwuri" class="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                <img src="https://raw.githubusercontent.com/herisheroes/spark/refs/heads/main/logo.png" alt="SPARK Logo" class="w-20 h-20 md:w-24 md:h-24 object-contain drop-shadow-[0_0_10px_rgba(0,246,255,0.6)]">
+                <img src="https://raw.githubusercontent.com/herisheroes/simulasitka/refs/heads/main/logo_UPI.png" alt="UPI" class="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+            </div>
             <h1 class="text-3xl md:text-4xl font-bold brand-font mb-2">SPARK</h1>
             <p class="text-gray-400 mb-6 text-center text-sm md:text-base">Smart Program for Active Reading</p>
             
@@ -429,7 +453,7 @@
                             <h3 class="text-lg md:text-xl font-bold brand-font text-neonBlue">Dashboard Statistik</h3>
                             <select id="adminTimeFilter" onchange="app.renderAdminDashboard()" class="bg-dark border border-neonBlue text-neonBlue rounded px-3 py-1 outline-none text-sm font-bold brand-font">
                                 <option value="all">Semua Waktu</option>
-                                <option value="today">Hari Ini</option>
+                                <option value="today">Hari Today</option>
                                 <option value="week">Minggu Ini</option>
                                 <option value="month">Bulan Ini</option>
                             </select>
@@ -535,6 +559,90 @@
                 fontSize: 18, autoRead: false, isSpeaking: false,
                 // State Paginasi Admin
                 bookSearchQuery: '', bookItemsPerPage: 10, bookCurrentPage: 1
+            },
+
+            showInfoTujuan: () => {
+                Swal.fire({
+                    title: '',
+                    html: `
+                        <div class="flex flex-col items-center text-left text-sm md:text-base space-y-6 font-sans mt-2 w-full">
+                            <!-- Logos -->
+                            <div class="flex items-center justify-center gap-4 mb-2">
+                                <img src="https://raw.githubusercontent.com/herisheroes/simulasitka/refs/heads/main/tutwuri2.png" alt="Tutwuri" class="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                                <img src="https://raw.githubusercontent.com/herisheroes/spark/refs/heads/main/logo.png" alt="SPARK" class="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_10px_rgba(0,246,255,0.6)]">
+                                <img src="https://raw.githubusercontent.com/herisheroes/simulasitka/refs/heads/main/logo_UPI.png" alt="UPI" class="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
+                            </div>
+                            
+                            <h2 class="text-2xl md:text-3xl text-neonBlue font-bold brand-font text-center border-b border-gray-600 pb-3 w-full">Informasi Pembelajaran</h2>
+
+                            <!-- Capaian Pembelajaran -->
+                            <div class="w-full bg-darker/80 p-5 md:p-6 rounded-xl border border-gray-700 shadow-inner">
+                                <h4 class="text-neonPurple font-bold text-lg md:text-xl mb-4"><i class="fas fa-bullseye mr-2"></i>CAPAIAN PEMBELAJARAN FASE C</h4>
+                                
+                                <div class="mb-5">
+                                    <p class="text-neonGreen font-bold flex items-center gap-2"><i class="fas fa-book-reader"></i> Elemen Membaca dan Memirsa</p>
+                                    <p class="text-gray-200 leading-relaxed mt-1 pl-6">Menganalisis informasi serta nilai-nilai dalam teks sastra dan nonsastra berwujud teks visual dan/atau audiovisual.</p>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-yellow-400 font-bold flex items-center gap-2"><i class="fas fa-pen-fancy"></i> Elemen Menulis</p>
+                                    <p class="text-gray-200 leading-relaxed mt-1 pl-6">Menulis berbagai tipe teks sederhana berdasarkan gagasan, hasil pengamatan, pengalaman, dan/atau imajinasi dengan rangkaian kalimat kompleks secara kreatif, menarik, dan/atau indah.</p>
+                                </div>
+                            </div>
+
+                            <!-- Tujuan Pembelajaran -->
+                            <div class="w-full bg-darker/80 p-5 md:p-6 rounded-xl border border-neonBlue shadow-[0_0_15px_rgba(0,246,255,0.1)]">
+                                <h4 class="text-neonBlue font-bold text-lg md:text-xl mb-4"><i class="fas fa-tasks mr-2"></i>Tujuan Pembelajaran Media SPARK</h4>
+                                
+                                <div class="mb-5">
+                                    <p class="text-neonGreen font-bold mb-3">Elemen Membaca dan Memirsa:</p>
+                                    <ul class="list-none space-y-3 text-gray-200 pl-2">
+                                        <li class="flex items-start gap-3"><i class="fas fa-check text-neonGreen mt-1 text-sm shrink-0"></i><span>Peserta didik mampu mengidentifikasi fakta, opini, dan informasi spesifik dari teks nonsastra (seperti infografis atau video dokumenter pendek) secara tepat.</span></li>
+                                        <li class="flex items-start gap-3"><i class="fas fa-check text-neonGreen mt-1 text-sm shrink-0"></i><span>Peserta didik mampu menganalisis karakter, alur, dan latar dari teks sastra berwujud visual atau audiovisual (misalnya dari animasi cerita atau komik digital).</span></li>
+                                        <li class="flex items-start gap-3"><i class="fas fa-check text-neonGreen mt-1 text-sm shrink-0"></i><span>Peserta didik mampu menyimpulkan nilai-nilai moral atau pesan tersirat dari konten sastra dan nonsastra yang dipirsanya.</span></li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <p class="text-yellow-400 font-bold mb-3">Elemen Menulis:</p>
+                                    <ul class="list-none space-y-3 text-gray-200 pl-2">
+                                        <li class="flex items-start gap-3"><i class="fas fa-check text-yellow-400 mt-1 text-sm shrink-0"></i><span>Peserta didik mampu menulis draf teks sederhana (seperti ringkasan, ulasan, atau cerita lanjutan) menggunakan imajinasi dan pengalamannya.</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#00f6ff',
+                    width: '850px',
+                    customClass: {
+                        popup: 'rounded-2xl border border-neonBlue shadow-[0_0_30px_rgba(0,246,255,0.2)] max-h-[90vh] overflow-y-auto'
+                    }
+                });
+            },
+
+            showInfoPengembang: () => {
+                Swal.fire({
+                    title: 'Profil Pengembang',
+                    html: `
+                        <div class="flex flex-col items-center text-center mt-4">
+                            <div class="w-24 h-24 bg-darker rounded-full border-4 border-neonPurple flex items-center justify-center mb-4 shadow-[0_0_15px_#b026ff]">
+                                <i class="fas fa-user-graduate text-4xl text-neonPurple"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white brand-font tracking-wide">Heris Apriadi</h3>
+                            <p class="text-neonGreen font-semibold mt-1 bg-neonGreen/10 px-3 py-1 rounded-full border border-neonGreen/30">Mahasiswa S2 UPI Tasikmalaya</p>
+                            <p class="text-gray-400 text-sm mt-5 max-w-sm mx-auto leading-relaxed">
+                                Pengembang Aplikasi <strong>SPARK</strong> (Smart Program for Active Reading) sebagai karya inovasi media pembelajaran digital interaktif untuk meningkatkan literasi membaca di tingkat dasar.
+                            </p>
+                        </div>
+                    `,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#b026ff'
+                });
             },
 
             showLoading: (text="Menghubungkan ke SPARK Core...") => {
@@ -1276,12 +1384,12 @@
                     doc.setFontSize(26);
                     doc.setFont("helvetica", "bold");
                     const titleLines = doc.splitTextToSize(book.title, pageWidth - 40);
-                    doc.text(titleLines, pageWidth / 2, 50, { align: "center" });
+                    doc.text(titleLines, pageWidth / 2, 45, { align: "center" });
 
                     if (book.thumbnail && book.thumbnail.startsWith('data:image')) {
-                        const coverW = 110;
-                        const coverH = 145;
-                        doc.addImage(book.thumbnail, 'JPEG', (pageWidth - coverW) / 2, 60, coverW, coverH);
+                        const coverW = 100;
+                        const coverH = 130;
+                        doc.addImage(book.thumbnail, 'JPEG', (pageWidth - coverW) / 2, 55, coverW, coverH);
                     }
 
                     // ================= LOGIKA MENGURUTKAN HALAMAN & BRANCHING =================
