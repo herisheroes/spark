@@ -318,12 +318,12 @@
                     <input type="text" id="jrnSifat" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required>
                 </div>
                 <div class="col-span-1 md:col-span-2">
-                    <label class="text-yellow-400 text-xs md:text-sm">Permasalahan apa yang dialami tokoh utama?</label>
-                    <textarea id="jrnMasalah" rows="2" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required></textarea>
+                    <label class="text-yellow-400 text-xs md:text-sm">Permasalahan apa yang dialami tokoh utama? <span class="text-gray-500">(Min. 100 karakter)</span></label>
+                    <textarea id="jrnMasalah" rows="3" class="w-full bg-dark border border-gray-600 rounded p-2 text-white focus:border-yellow-400 outline-none transition" required></textarea>
                 </div>
                 <div class="col-span-1 md:col-span-2 mb-4">
-                    <label class="text-neonGreen text-xs md:text-sm">Tindakan tokoh dalam menyelesaikan masalahnya?</label>
-                    <textarea id="jrnSolusi" rows="2" class="w-full bg-dark border border-gray-600 rounded p-2 text-white" required></textarea>
+                    <label class="text-neonGreen text-xs md:text-sm">Tindakan tokoh dalam menyelesaikan masalahnya? <span class="text-gray-500">(Min. 100 karakter)</span></label>
+                    <textarea id="jrnSolusi" rows="3" class="w-full bg-dark border border-gray-600 rounded p-2 text-white focus:border-neonGreen outline-none transition" required></textarea>
                 </div>
 
                 <div class="col-span-1 md:col-span-2">
@@ -1369,6 +1369,14 @@
                     tanggal: document.getElementById('jrnTanggal').value, tokoh: document.getElementById('jrnTokoh').value,
                     sifat: document.getElementById('jrnSifat').value, masalah: document.getElementById('jrnMasalah').value, solusi: document.getElementById('jrnSolusi').value
                 };
+
+                if (formData.masalah.trim().length < 100) {
+                    return Swal.fire({ icon: 'warning', title: 'Teks Terlalu Pendek', text: `Kolom "Permasalahan" harus diisi minimal 100 karakter. (Saat ini: ${formData.masalah.trim().length} karakter)`, background: '#0f172a', color: '#fff' });
+                }
+                
+                if (formData.solusi.trim().length < 100) {
+                    return Swal.fire({ icon: 'warning', title: 'Teks Terlalu Pendek', text: `Kolom "Tindakan" harus diisi minimal 100 karakter. (Saat ini: ${formData.solusi.trim().length} karakter)`, background: '#0f172a', color: '#fff' });
+                }
 
                 app.showLoading("Mengirim Jurnal...");
                 const pts = parseInt(app.state.currentTask.points.journal) || 0;
