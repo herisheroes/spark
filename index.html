@@ -187,20 +187,22 @@
 
             </div>
 
-            <div class="flex gap-2 md:gap-4 border-b border-gray-700 pb-2 mt-2">
-                <button onclick="app.switchTab('missions')" id="tabMissions" class="text-neonBlue font-bold border-b-2 border-neonBlue px-3 py-2 text-sm md:text-base brand-font">Misi Harian</button>
-                <button onclick="app.switchTab('library')" id="tabLibrary" class="text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition">Perpustakaan</button>
-                <button onclick="app.switchTab('leaderboard')" id="tabLeaderboard" class="text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition"><i class="fas fa-trophy mr-1 text-yellow-400"></i> Klasemen</button>
+            <div class="flex flex-wrap gap-2 md:gap-3 mb-2 mt-2">
+                <button onclick="app.switchTab('missions')" id="tabMissions" class="bg-neonBlue/20 text-neonBlue font-bold border border-neonBlue px-4 py-2 text-sm md:text-base brand-font rounded-lg shadow-[0_0_10px_rgba(0,246,255,0.2)] transition">Misi Harian</button>
+                <button onclick="app.switchTab('library')" id="tabLibrary" class="bg-darker/80 text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 text-sm md:text-base brand-font rounded-lg transition">Perpustakaan</button>
+                <button onclick="app.switchTab('leaderboard')" id="tabLeaderboard" class="bg-darker/80 text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 text-sm md:text-base brand-font rounded-lg transition"><i class="fas fa-trophy mr-1 text-yellow-400"></i> Peringkat</button>
             </div>
 
             <div id="contentMissions" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
-            <div id="contentLibrary" class="hidden flex-col gap-4">
-                <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+            
+            <div id="contentLibrary" class="hidden flex-col gap-4 w-full">
+                <div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full"></div>
             </div>
+
             <div id="contentLeaderboard" class="hidden flex-col gap-4">
-                <div class="glass-panel p-4 md:p-6 w-full max-w-3xl mx-auto">
-                    <h3 class="text-xl font-bold brand-font text-yellow-400 mb-4 text-center"><i class="fas fa-crown mr-2"></i>Top 10 SPARK Readers</h3>
-                    <div id="leaderboardList" class="flex flex-col gap-2"></div>
+                <div class="glass-panel p-4 md:p-6 w-full max-w-4xl mx-auto">
+                    <h3 class="text-xl md:text-2xl font-bold brand-font text-yellow-400 mb-6 text-center drop-shadow-md"><i class="fas fa-crown mr-2"></i>Top 10 SPARK Readers</h3>
+                    <div id="leaderboardList" class="flex flex-col gap-3"></div>
                 </div>
             </div>
         </div>
@@ -365,9 +367,9 @@
                                 <div class="mb-4">
                                     <label class="block text-gray-400 text-sm mb-1">Panjang Cerita per Halaman:</label>
                                     <select id="aiStoryLength" class="w-full bg-darker border border-gray-600 rounded p-3 text-white text-sm focus:border-neonBlue outline-none transition">
-                                        <option value="pendek">Pendek (300 - 400 karakter)</option>
-                                        <option value="sedang" selected>Sedang (500 - 700 karakter)</option>
-                                        <option value="panjang">Panjang (800 - 1000 karakter)</option>
+                                        <option value="pendek">Pendek (100 - 200 karakter)</option>
+                                        <option value="sedang" selected>Sedang (200 - 400 karakter)</option>
+                                        <option value="panjang">Panjang (400 - 800 Karakter)</option>
                                     </select>
                                 </div>
                                 <button onclick="app.generateAIStory()" id="btnGenerateAI" class="w-full neon-btn-green py-2 rounded font-bold brand-font"><i class="fas fa-magic mr-2"></i> Generate Cerita</button>
@@ -466,14 +468,22 @@
                     </div>
 
                     <div id="admin-progress" class="admin-content hidden w-full">
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                             <h3 class="text-lg md:text-xl font-bold brand-font text-neonBlue">Dashboard Statistik</h3>
-                            <select id="adminTimeFilter" onchange="app.renderAdminDashboard()" class="bg-dark border border-neonBlue text-neonBlue rounded px-3 py-1 outline-none text-sm font-bold brand-font">
-                                <option value="all">Semua Waktu</option>
-                                <option value="today">Hari Ini</option>
-                                <option value="week">Minggu Ini</option>
-                                <option value="month">Bulan Ini</option>
-                            </select>
+                            <div class="flex flex-wrap gap-2">
+                                <select id="adminSortFilter" onchange="app.renderAdminDashboard()" class="bg-dark border border-neonPurple text-neonPurple rounded px-3 py-1 outline-none text-sm font-bold brand-font">
+                                    <option value="points">Urutkan: Poin</option>
+                                    <option value="level">Urutkan: Level</option>
+                                    <option value="totalBuku">Urutkan: Buku Selesai</option>
+                                    <option value="streak">Urutkan: Streak</option>
+                                </select>
+                                <select id="adminTimeFilter" onchange="app.renderAdminDashboard()" class="bg-dark border border-neonBlue text-neonBlue rounded px-3 py-1 outline-none text-sm font-bold brand-font">
+                                    <option value="all">Semua Waktu</option>
+                                    <option value="today">Hari Ini</option>
+                                    <option value="week">Minggu Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Kartu Informasi -->
@@ -508,7 +518,8 @@
                                         <tr>
                                             <th class="px-4 py-3">Peringkat</th>
                                             <th class="px-4 py-3">Siswa</th>
-                                            <th class="px-4 py-3 text-center">Buku</th>
+                                            <th class="px-4 py-3 text-center">Level</th>
+                                            <th class="px-4 py-3 text-center" title="Buku Selesai Dibaca">Buku Selesai</th>
                                             <th class="px-4 py-3 text-center">Poin</th>
                                             <th class="px-4 py-3 text-center">Streak</th>
                                             <th class="px-4 py-3 text-center">Aksi</th>
@@ -571,7 +582,7 @@
 
     <script>
         // Ganti URL ini dengan URL Web App Apps Script Anda!
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbw8_AMUcTXWhX57qdniEPlvH7Kj1r7lc0axKD2tjLJgfnFenbHZhE5rmWvRnks53XIY/exec'; 
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzJH5aUEo4uuNGv1ZOJ9_zxF0w-zJah6XHVhRXEnAffG2WTnR2IWppNs7-GDHxwtzjK7g/exec'; 
         const apiKey = ""; 
 
         const app = {
@@ -851,9 +862,13 @@
                     const contentEl = document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1));
                     const tabEl = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
                     if(contentEl) contentEl.classList.toggle('hidden', tab !== t);
-                    if(tabEl) tabEl.className = tab === t 
-                        ? "text-neonBlue font-bold border-b-2 border-neonBlue px-3 py-2 text-sm md:text-base brand-font" 
-                        : "text-gray-400 hover:text-neonBlue px-3 py-2 text-sm md:text-base brand-font transition";
+                    if(tabEl) {
+                        if (tab === t) {
+                            tabEl.className = "bg-neonBlue/20 text-neonBlue font-bold border border-neonBlue px-4 py-2 text-sm md:text-base brand-font rounded-lg shadow-[0_0_10px_rgba(0,246,255,0.2)] transition";
+                        } else {
+                            tabEl.className = "bg-darker/80 text-gray-400 hover:text-white border border-gray-700 hover:border-gray-500 px-4 py-2 text-sm md:text-base brand-font rounded-lg transition";
+                        }
+                    }
                 });
             },
 
@@ -955,118 +970,210 @@
 
                         app.renderMissions(); app.renderLibrary(); app.renderLeaderboard();
                         app.updateUserUI(null); // Null artinya inisialisasi awal tanpa popup naik level
+                        
+                        // Menampilkan Pop-Up Selamat Datang setelah login berhasil
+                        app.showWelcomePopup();
                     }
                     app.hideLoading();
                 } catch(e) { app.hideLoading(); Swal.fire('Error', 'Gagal mengambil data dari Google Sheets.', 'error'); }
             },
 
-            renderMissions: () => {
-                document.getElementById('contentMissions').innerHTML = app.state.missions.map(m => {
-                    const pts = m.points || {};
-                    const ptsRead = parseInt(pts.read) || 0;
-                    const ptsQuiz = parseInt(pts.quiz) || 0;
-                    const ptsJournal = parseInt(pts.journal) || 0;
-                    const totalPoints = ptsRead + ptsQuiz + ptsJournal;
+            showWelcomePopup: () => {
+                // Jangan tampilkan jika tidak ada misi harian (buku yang rilis hari ini)
+                if(!app.state.missions || app.state.missions.length === 0) return;
 
-                    const prog = app.state.progress.find(p => String(p.itemId) === String(m.id));
-                    let statusHtml = '';
-                    if(prog) {
-                        if(prog.journal === 1) statusHtml = '<span class="text-green-400 text-xs"><i class="fas fa-check-circle"></i> Selesai Semua</span>';
-                        else if(prog.quiz === 1) statusHtml = '<span class="text-yellow-400 text-xs"><i class="fas fa-pen-nib"></i> Jurnal Tertunda</span>';
-                        else if(prog.read === 1) statusHtml = '<span class="text-orange-400 text-xs"><i class="fas fa-question-circle"></i> Kuis Tertunda</span>';
+                const todayStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                
+                // Ambil 3 judul buku pertama sebagai cuplikan
+                let bookTitlesHtml = '';
+                app.state.missions.slice(0, 3).forEach(m => {
+                    bookTitlesHtml += `<li class="flex items-start gap-2 text-left mb-2"><i class="fas fa-book-open text-neonBlue mt-1"></i> <span class="text-white font-semibold">${m.title}</span></li>`;
+                });
+
+                Swal.fire({
+                    title: '',
+                    html: `
+                        <div class="flex flex-col items-center">
+                            <img src="https://raw.githubusercontent.com/herisheroes/spark/refs/heads/main/logo.png" alt="SPARK" class="w-20 h-20 md:w-24 md:h-24 object-contain mb-4 drop-shadow-[0_0_15px_rgba(0,246,255,0.8)] animate-bounce">
+                            <h2 class="text-2xl md:text-3xl font-bold brand-font text-neonBlue mb-2">Selamat Datang, Petualang Literasi!</h2>
+                            <p class="text-gray-300 mb-6 text-sm md:text-base">Misi harian baru telah menantimu hari ini, <br><span class="font-bold text-yellow-400">${todayStr}</span></p>
+                            
+                            <div class="bg-darker border border-gray-700 rounded-xl p-4 w-full mb-6">
+                                <h4 class="text-neonGreen font-bold mb-3 border-b border-gray-700 pb-2"><i class="fas fa-bullhorn mr-2"></i>Rilis Misi Hari Ini:</h4>
+                                <ul class="text-sm">
+                                    ${bookTitlesHtml}
+                                </ul>
+                                ${app.state.missions.length > 3 ? `<p class="text-gray-500 text-xs text-left mt-2 italic">Dan ${app.state.missions.length - 3} buku lainnya...</p>` : ''}
+                            </div>
+
+                            <p class="text-sm text-gray-400 leading-relaxed max-w-sm">Silakan berpetualang dengan membaca cerita seru, selesaikan kuisnya, dan tulis jurnal pemahamanmu untuk mengumpulkan poin SPARK terbanyak!</p>
+                        </div>
+                    `,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonText: 'Mulai Petualangan',
+                    confirmButtonColor: '#00f6ff',
+                    customClass: {
+                        popup: 'rounded-2xl border border-neonBlue shadow-[0_0_30px_rgba(0,246,255,0.3)]',
+                        confirmButton: 'brand-font font-bold text-lg px-8 py-3 rounded-full hover:scale-105 transition-transform shadow-[0_0_15px_#00f6ff]'
                     }
-
-                    return `
-                    <div class="glass-panel overflow-hidden flex flex-col group cursor-pointer hover:neon-border-blue transition-all relative" onclick="app.startTask('${m.id}', 'mission')">
-                        <div class="h-32 md:h-40 overflow-hidden relative">
-                            <img src="${m.thumbnail}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                            <div class="absolute top-2 right-2 flex flex-col gap-1 items-end">
-                                <div class="bg-dark/80 px-2 py-1 rounded text-[10px] md:text-xs text-neonGreen font-bold border border-neonGreen shadow">
-                                    <i class="fas fa-coins text-yellow-400"></i> Max +${totalPoints}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-3 md:p-4 flex-grow flex flex-col">
-                            <h3 class="font-bold text-base md:text-lg mb-1 leading-tight">${m.title}</h3>
-                            <div class="mb-2">${statusHtml}</div>
-                            <div class="flex gap-2 text-[10px] md:text-xs text-gray-400 mt-auto flex-wrap">
-                                <span class="bg-gray-800 px-2 py-1 rounded" title="Waktu Minimum"><i class="fas fa-clock text-neonBlue"></i> Min ${m.minTime} mnt</span>
-                                <span class="bg-blue-900/40 text-blue-300 px-2 py-1 rounded" title="Poin Membaca"><i class="fas fa-book-open"></i> +${ptsRead}</span>
-                                <span class="bg-purple-900/40 text-purple-300 px-2 py-1 rounded" title="Poin Kuis"><i class="fas fa-question-circle"></i> +${ptsQuiz}</span>
-                                <span class="bg-green-900/40 text-green-300 px-2 py-1 rounded" title="Poin Jurnal"><i class="fas fa-pen-nib"></i> +${ptsJournal}</span>
-                            </div>
-                        </div>
-                    </div>`
-                }).join('');
+                });
             },
 
-            renderLibrary: () => { /* Placeholder */ },
+            // Fungsi helper untuk render kartu buku (Digunakan oleh misi & library)
+            renderBookCard: (m) => {
+                const pts = m.points || {};
+                const ptsRead = parseInt(pts.read) || 0;
+                const ptsQuiz = parseInt(pts.quiz) || 0;
+                const ptsJournal = parseInt(pts.journal) || 0;
+                const totalPoints = ptsRead + ptsQuiz + ptsJournal;
+
+                const prog = app.state.progress.find(p => String(p.itemId) === String(m.id));
+                let statusHtml = '';
+                if(prog) {
+                    if(prog.journal === 1) statusHtml = '<span class="text-green-400 text-xs font-bold bg-green-900/30 px-2 py-1 rounded border border-green-500/50"><i class="fas fa-check-circle"></i> Selesai Semua</span>';
+                    else if(prog.quiz === 1) statusHtml = '<span class="text-yellow-400 text-xs font-bold bg-yellow-900/30 px-2 py-1 rounded border border-yellow-500/50"><i class="fas fa-pen-nib"></i> Jurnal Tertunda</span>';
+                    else if(prog.read === 1) statusHtml = '<span class="text-orange-400 text-xs font-bold bg-orange-900/30 px-2 py-1 rounded border border-orange-500/50"><i class="fas fa-question-circle"></i> Kuis Tertunda</span>';
+                }
+
+                return `
+                <div class="glass-panel overflow-hidden flex flex-col group cursor-pointer hover:neon-border-blue hover:shadow-[0_0_20px_rgba(0,246,255,0.3)] transition-all duration-300 relative bg-dark/80" onclick="app.startTask('${m.id}')">
+                    <div class="h-40 md:h-48 overflow-hidden relative border-b border-gray-700">
+                        <img src="${m.thumbnail}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-darker to-transparent opacity-60"></div>
+                        <div class="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                            <div class="bg-darker/90 px-3 py-1 rounded-full text-xs md:text-sm text-neonGreen font-bold border border-neonGreen shadow-[0_0_10px_#00ff88]">
+                                <i class="fas fa-coins text-yellow-400"></i> Max +${totalPoints}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 md:p-5 flex-grow flex flex-col">
+                        <h3 class="font-bold text-lg md:text-xl mb-2 leading-tight text-white group-hover:text-neonBlue transition-colors drop-shadow-sm">${m.title}</h3>
+                        <div class="mb-3">${statusHtml}</div>
+                        <div class="flex gap-2 text-[10px] md:text-xs text-gray-300 mt-auto flex-wrap">
+                            <span class="bg-darker border border-gray-600 px-2 py-1 rounded-md" title="Waktu Minimum"><i class="fas fa-clock text-neonBlue"></i> Min ${m.minTime} mnt</span>
+                            <span class="bg-darker border border-gray-600 px-2 py-1 rounded-md" title="Poin Membaca"><i class="fas fa-book-open text-blue-400"></i> +${ptsRead}</span>
+                            <span class="bg-darker border border-gray-600 px-2 py-1 rounded-md" title="Poin Kuis"><i class="fas fa-question-circle text-purple-400"></i> +${ptsQuiz}</span>
+                            <span class="bg-darker border border-gray-600 px-2 py-1 rounded-md" title="Poin Jurnal"><i class="fas fa-pen-nib text-green-400"></i> +${ptsJournal}</span>
+                        </div>
+                    </div>
+                </div>`;
+            },
+
+            renderMissions: () => {
+                const container = document.getElementById('contentMissions');
+                if (app.state.missions.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-10 bg-dark/50 rounded-xl border border-gray-700"><i class="fas fa-box-open text-4xl text-gray-500 mb-3"></i><p class="text-gray-400">Belum ada misi buku yang dirilis hari ini.</p></div>`;
+                    return;
+                }
+                container.innerHTML = app.state.missions.map(m => app.renderBookCard(m)).join('');
+            },
+
+            renderLibrary: () => { 
+                const container = document.getElementById('libraryGrid');
+                if (app.state.library.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-10 bg-dark/50 rounded-xl border border-gray-700"><i class="fas fa-book text-4xl text-gray-500 mb-3"></i><p class="text-gray-400">Belum ada buku di perpustakaan.</p></div>`;
+                    return;
+                }
+                container.innerHTML = app.state.library.map(m => app.renderBookCard(m)).join('');
+            },
 
             renderLeaderboard: () => {
                 const container = document.getElementById('leaderboardList');
                 if(!container) return;
                 
                 if(app.state.leaderboard.length === 0) {
-                    container.innerHTML = `<p class="text-center text-gray-500 py-4">Belum ada data klasemen.</p>`;
+                    container.innerHTML = `<p class="text-center text-gray-500 py-4">Belum ada data peringkat.</p>`;
                     return;
                 }
 
                 container.innerHTML = app.state.leaderboard.map((u, i) => {
-                    let rankIcon = `<span class="text-gray-400 font-bold w-6 text-center">${i+1}</span>`;
-                    if (i === 0) rankIcon = `<i class="fas fa-medal text-yellow-400 text-xl w-6 text-center"></i>`;
-                    else if (i === 1) rankIcon = `<i class="fas fa-medal text-gray-300 text-xl w-6 text-center"></i>`;
-                    else if (i === 2) rankIcon = `<i class="fas fa-medal text-yellow-600 text-xl w-6 text-center"></i>`;
+                    let rankIcon = `<span class="text-gray-400 font-bold w-8 text-center text-lg md:text-xl">${i+1}</span>`;
+                    if (i === 0) rankIcon = `<i class="fas fa-medal text-yellow-400 text-2xl md:text-3xl w-8 text-center drop-shadow-[0_0_5px_#eab308]"></i>`;
+                    else if (i === 1) rankIcon = `<i class="fas fa-medal text-gray-300 text-xl md:text-2xl w-8 text-center drop-shadow-[0_0_5px_#d1d5db]"></i>`;
+                    else if (i === 2) rankIcon = `<i class="fas fa-medal text-orange-400 text-xl md:text-2xl w-8 text-center drop-shadow-[0_0_5px_#fb923c]"></i>`;
                     
                     const isMe = app.currentUser && app.currentUser.username === u.username;
                     
                     return `
-                    <div class="flex items-center justify-between p-3 rounded bg-dark border ${isMe ? 'border-neonBlue' : 'border-gray-700'}">
-                        <div class="flex items-center gap-3 md:gap-4">
+                    <div class="flex items-center justify-between p-3 md:p-4 rounded-xl bg-darker border-l-4 ${isMe ? 'border-neonBlue shadow-[0_0_15px_rgba(0,246,255,0.2)]' : 'border-gray-700 hover:border-gray-500'} transition-all">
+                        <div class="flex items-center gap-3 md:gap-5 w-2/3 md:w-1/2">
                             ${rankIcon}
-                            <div>
-                                <p class="text-white font-bold text-sm md:text-base">${u.name} ${isMe ? '<span class="text-[10px] bg-neonBlue text-dark px-1 rounded ml-1">Kamu</span>' : ''}</p>
-                                <p class="text-xs text-gray-400">Lvl ${u.level} • ${u.totalBuku} Buku</p>
+                            <div class="truncate">
+                                <p class="text-white font-bold text-sm md:text-lg truncate">${u.name} ${isMe ? '<span class="text-[10px] bg-neonBlue text-dark px-2 py-0.5 rounded-full ml-2 align-middle border border-neonBlue">Kamu</span>' : ''}</p>
+                                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                    <span class="bg-gray-800 text-gray-300 text-[10px] md:text-xs px-2 py-0.5 rounded-md border border-gray-600">Lvl ${u.level}</span>
+                                    <span class="bg-blue-900/40 text-blue-300 text-[10px] md:text-xs px-2 py-0.5 rounded-md border border-blue-800/50"><i class="fas fa-book-open"></i> ${u.totalBuku} Buku</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="flex items-center gap-4 text-right">
-                            <div class="hidden md:block bg-neonGreen/10 border border-neonGreen/30 px-3 py-1 rounded-lg">
-                                <p class="text-neonGreen font-black text-sm md:text-base drop-shadow-md" title="Total Poin Didapat">
-                                    <i class="fas fa-coins text-xs mr-1 text-yellow-400"></i> ${u.points} <span class="text-xs opacity-75">SP</span>
+                        <div class="flex flex-col md:flex-row items-end md:items-center gap-2 md:gap-6 w-1/3 md:w-1/2 justify-end">
+                            <div class="bg-dark border border-neonGreen/30 px-3 py-1.5 md:py-2 rounded-lg flex items-center justify-center min-w-[70px] shadow-[inset_0_0_10px_rgba(0,255,136,0.1)]">
+                                <p class="text-neonGreen font-black text-sm md:text-xl drop-shadow-[0_0_5px_#00ff88]" title="Total Poin SPARK">
+                                    ${u.points} <span class="text-[10px] md:text-xs text-gray-400 font-normal tracking-widest">SP</span>
                                 </p>
                             </div>
-                            <div>
-                                <p class="text-yellow-400 font-bold text-sm" title="Streak Harian"><i class="fas fa-fire"></i> ${u.streak}</p>
+                            <div class="bg-dark border border-yellow-500/30 px-3 py-1.5 md:py-2 rounded-lg flex items-center justify-center min-w-[60px]" title="Streak Membaca Harian">
+                                <p class="text-yellow-400 font-bold text-sm md:text-lg drop-shadow-[0_0_5px_#eab308]"><i class="fas fa-fire mr-1"></i> ${u.streak}</p>
                             </div>
                         </div>
                     </div>`;
                 }).join('');
             },
 
-            startTask: async (id, type) => {
-                app.state.taskType = type;
-                app.state.currentTask = app.state.missions.find(m => String(m.id) === String(id));
+            startTask: async (id) => {
+                // Cari buku dari gabungan misi harian dan perpustakaan
+                app.state.currentTask = app.state.missions.find(m => String(m.id) === String(id)) || app.state.library.find(m => String(m.id) === String(id));
+                
+                if(!app.state.currentTask) return Swal.fire('Error', 'Buku tidak ditemukan.', 'error');
+
                 const prog = app.state.progress.find(p => String(p.itemId) === String(id)) || { read: 0, quiz: 0, journal: 0 };
 
+                // LOGIKA VALIDASI ALUR KETAT
                 if (prog.journal === 1) {
-                    const result = await Swal.fire({ title: 'Sudah Selesai!', text: 'Kamu sudah menyelesaikan semua tugas di buku ini. Mau baca lagi? (Tidak ada tambahan poin).', icon: 'info', showCancelButton: true, confirmButtonText: 'Baca Ulang', cancelButtonText: 'Kembali', background: '#0f172a', color: '#fff' });
-                    if(result.isConfirmed) app.initReadingMode(true);
-                    return;
+                    // Jika Jurnal Selesai = Buku Selesai Penuh. Cegah akses.
+                    await Swal.fire({ 
+                        title: 'Petualangan Selesai', 
+                        text: 'Hebat! Kamu sudah menyelesaikan semua tantangan (Membaca, Kuis, & Jurnal) pada buku ini. Misi untuk buku ini telah dikunci untuk mencegah pengiriman data ganda.', 
+                        icon: 'success', confirmButtonText: 'Tutup', confirmButtonColor: '#00ff88', background: '#0f172a', color: '#fff' 
+                    });
+                    return; // Hentikan fungsi di sini, jangan berikan opsi baca ulang.
                 }
                 
                 if (prog.read === 1 && prog.quiz === 0) {
-                    const result = await Swal.fire({ title: 'Kuis Tertunda', text: 'Kamu belum mengerjakan kuis untuk buku ini.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Lanjut Kuis', cancelButtonText: 'Baca Ulang Buku', background: '#0f172a', color: '#fff' });
-                    if(result.isConfirmed) { app.loadQuiz(); return; }
-                    else { app.initReadingMode(true); return; }
+                    // Jika Baca Selesai tapi Kuis Belum
+                    const result = await Swal.fire({ 
+                        title: 'Kuis Tertunda', 
+                        text: 'Kamu sudah selesai membaca tapi belum mengerjakan kuis untuk buku ini. Silakan lanjutkan kuis.', 
+                        icon: 'warning', showCancelButton: true, confirmButtonText: 'Lanjut Kuis', cancelButtonText: 'Tutup', background: '#0f172a', color: '#fff' 
+                    });
+                    if(result.isConfirmed) { 
+                        app.loadQuiz(); 
+                    } 
+                    return;
                 }
 
                 if (prog.read === 1 && prog.quiz === 1 && prog.journal === 0) {
-                    const result = await Swal.fire({ title: 'Jurnal Tertunda', text: 'Kamu belum mengisi jurnal untuk buku ini.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Isi Jurnal', cancelButtonText: 'Baca Ulang Buku', background: '#0f172a', color: '#fff' });
-                    if(result.isConfirmed) { app.loadJournal(); return; }
-                    else { app.initReadingMode(true); return; }
+                    // Jika Kuis Selesai tapi Jurnal Belum
+                    const result = await Swal.fire({ 
+                        title: 'Jurnal Tertunda', 
+                        text: 'Kuis sudah tuntas! Tinggal selangkah lagi, lengkapi Jurnal Pemahaman untuk buku ini.', 
+                        icon: 'warning', showCancelButton: true, confirmButtonText: 'Isi Jurnal', cancelButtonText: 'Tutup', background: '#0f172a', color: '#fff' 
+                    });
+                    if(result.isConfirmed) { 
+                        app.loadJournal(); 
+                    } 
+                    return;
                 }
 
-                Swal.fire({ title: 'Mulai Membaca?', text: `Target waktu baca: ${app.state.currentTask.minTime || 5} menit`, icon: 'info', showCancelButton: true, confirmButtonText: 'Mulai', confirmButtonColor: '#00f6ff', background: '#0f172a', color: '#fff' })
-                .then((result) => { if (result.isConfirmed) app.initReadingMode(false); });
+                // Kondisi Default (Belum Pernah Baca)
+                Swal.fire({ 
+                    title: 'Mulai Membaca?', 
+                    text: `Target waktu baca: ${app.state.currentTask.minTime || 5} menit. Selamat berpetualang!`, 
+                    icon: 'info', showCancelButton: true, confirmButtonText: 'Mulai Sekarang', confirmButtonColor: '#00f6ff', background: '#0f172a', color: '#fff' 
+                }).then((result) => { 
+                    if (result.isConfirmed) app.initReadingMode(false); // isReread = false, baca pertama kali dapat poin
+                });
             },
 
             changeFontSize: (delta) => {
@@ -1781,6 +1888,7 @@
             renderAdminDashboard: () => {
                 if(!app.state.adminData) return;
                 const filter = document.getElementById('adminTimeFilter').value;
+                const sortFilter = document.getElementById('adminSortFilter') ? document.getElementById('adminSortFilter').value : 'points';
                 const { users, progress } = app.state.adminData;
                 
                 // Hitung Tanggal Filter
@@ -1821,22 +1929,33 @@
                 // --- Render Chart ---
                 app.renderAdminChart(filteredProgress, filter);
 
+                // --- Sort Siswa ---
+                let sortedUsers = [...users];
+                sortedUsers.sort((a,b) => {
+                    if (sortFilter === 'points') return b.points - a.points;
+                    if (sortFilter === 'level') return b.level - a.level;
+                    if (sortFilter === 'totalBuku') return b.totalBuku - a.totalBuku;
+                    if (sortFilter === 'streak') return b.streak - a.streak;
+                    return b.points - a.points;
+                });
+
                 // --- Render Tabel Siswa ---
-                const sortedUsers = [...users].sort((a,b) => b.points - a.points);
+                // Data users di-sort berdasarkan pilihan sortFilter
                 const tableBody = document.getElementById('adminStudentTable');
                 
                 tableBody.innerHTML = sortedUsers.map((u, index) => `
-                    <tr class="hover:bg-gray-800 transition">
-                        <td class="px-4 py-3 font-bold">${index + 1}</td>
+                    <tr class="hover:bg-gray-800 transition border-b border-gray-700">
+                        <td class="px-4 py-3 font-bold text-center">${index + 1}</td>
                         <td class="px-4 py-3">
                             <p class="text-white font-bold">${u.name}</p>
                             <p class="text-xs text-gray-500">@${u.username}</p>
                         </td>
-                        <td class="px-4 py-3 text-center text-neonBlue font-bold">${u.totalBuku}</td>
-                        <td class="px-4 py-3 text-center text-neonGreen font-bold">${u.points}</td>
+                        <td class="px-4 py-3 text-center font-bold text-gray-300">${u.level}</td>
+                        <td class="px-4 py-3 text-center text-blue-400 font-bold">${u.totalBuku}</td>
+                        <td class="px-4 py-3 text-center text-neonGreen font-bold bg-darker/50">${u.points}</td>
                         <td class="px-4 py-3 text-center text-yellow-400 font-bold"><i class="fas fa-fire"></i> ${u.streak}</td>
                         <td class="px-4 py-3 text-center">
-                            <button onclick="app.openJournalModal('${u.id}', '${u.name}')" class="bg-neonPurple/20 text-neonPurple hover:bg-neonPurple/40 px-2 py-1 rounded text-xs transition"><i class="fas fa-book-open mr-1"></i> Jurnal</button>
+                            <button onclick="app.openJournalModal('${u.id}', '${u.name}')" class="bg-neonPurple/20 text-neonPurple hover:bg-neonPurple/40 px-3 py-1.5 rounded text-xs transition border border-neonPurple/30 font-bold"><i class="fas fa-book-open mr-1"></i> Lihat Jurnal</button>
                         </td>
                     </tr>
                 `).join('');
@@ -2061,9 +2180,9 @@
                     if (isBranching) systemPrompt += `Cerita BERCABANG (Branching) dengan 10 halaman. Hal 1-5 linear. Di Hal 6, beri 2 pilihan (choices). Pilihan A ke 7A-10A. Pilihan B ke 7B-10B. `;
                     else systemPrompt += `Cerita LINEAR 10 halaman berurutan (id "1" s/d "10"). `;
                     
-                    let lengthRule = "500 hingga 700";
-                    if (lengthOpt === 'pendek') lengthRule = "300 hingga 400";
-                    if (lengthOpt === 'panjang') lengthRule = "800 hingga 1000";
+                    let lengthRule = "200 hingga 400";
+                    if (lengthOpt === 'pendek') lengthRule = "100 hingga 200";
+                    if (lengthOpt === 'panjang') lengthRule = "400 hingga 800";
                     
                     systemPrompt += `ATURAN PANJANG TEKS: Sangat penting agar teks isi cerita ('text') untuk SETIAP halaman panjang dan detail. WAJIB berjumlah antara ${lengthRule} karakter per halaman. Kembangkan ceritanya agar selalu mencapai target karakter tersebut. `;
                     
