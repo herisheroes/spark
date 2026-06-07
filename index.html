@@ -157,12 +157,12 @@
             <div class="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
                 
                 <!-- Kartu Pangkat Level -->
-                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-yellow-400 w-full col-span-2">
-                    <div class="w-10 h-10 md:w-14 md:h-14 shrink-0 bg-darker/80 rounded-full p-1 border border-yellow-500 flex items-center justify-center overflow-hidden shadow-[0_0_10px_rgba(234,179,8,0.5)]">
-                        <img id="statBadgeImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135695.png" alt="Badge" class="w-full h-full object-contain hover:scale-110 transition">
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-yellow-400 w-full col-span-2 cursor-pointer hover:bg-darker/60 hover:shadow-[0_0_15px_#eab308] transition group" onclick="app.showLevelInfo()" title="Klik untuk info Level">
+                    <div class="w-10 h-10 md:w-14 md:h-14 shrink-0 bg-darker/80 rounded-full p-1 border border-yellow-500 flex items-center justify-center overflow-hidden shadow-[0_0_10px_rgba(234,179,8,0.5)] group-hover:scale-110 transition duration-300">
+                        <img id="statBadgeImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135695.png" alt="Badge" class="w-full h-full object-contain">
                     </div>
                     <div class="flex-grow">
-                        <p class="text-[10px] md:text-xs text-gray-400">Pangkat Lvl <span id="statLevelNum">1</span></p>
+                        <p class="text-[10px] md:text-xs text-gray-400">Pangkat Lvl <span id="statLevelNum">1</span> <i class="fas fa-info-circle ml-1 text-gray-500 group-hover:text-yellow-400 transition"></i></p>
                         <p class="text-sm md:text-base font-bold text-yellow-400 leading-tight truncate" id="statRankName">Pemula Literasi</p>
                         <div class="w-full bg-gray-700 h-1.5 mt-1 rounded-full overflow-hidden" title="Progres Level">
                             <div id="statLevelProgress" class="bg-gradient-to-r from-yellow-500 to-neonGreen h-full transition-all duration-500" style="width: 0%;"></div>
@@ -757,6 +757,76 @@
                 
                 document.getElementById('badgeModalContent').innerHTML = html;
                 document.getElementById('badgeModal').classList.remove('hidden');
+            },
+
+            // Tampilkan Modal UI Untuk Info Level
+            showLevelInfo: () => {
+                if (!app.currentUser || !app.state.levels || app.state.levels.length === 0) return;
+                
+                const pts = parseInt(app.currentUser.points) || 0;
+                let currentLvlObj = { level: 1, name: "Pemula Literasi", minPoints: 0, badge: "https://cdn-icons-png.flaticon.com/512/3135/3135695.png" };
+                let nextLvlObj = null;
+                
+                const sortedLevels = [...app.state.levels].sort((a,b) => a.minPoints - b.minPoints);
+                for(let i=0; i < sortedLevels.length; i++) {
+                    if(pts >= sortedLevels[i].minPoints) {
+                        currentLvlObj = sortedLevels[i];
+                    } else {
+                        nextLvlObj = sortedLevels[i]; 
+                        break;
+                    }
+                }
+
+                let progressHtml = '';
+                let statusHtml = '';
+
+                if (nextLvlObj) {
+                    const range = nextLvlObj.minPoints - currentLvlObj.minPoints;
+                    const earned = pts - currentLvlObj.minPoints;
+                    const progressPct = Math.min(100, Math.max(0, (earned / range) * 100));
+                    const pointsNeeded = nextLvlObj.minPoints - pts;
+
+                    statusHtml = `<p class="text-gray-300 text-sm md:text-base mt-4">Kumpulkan <b class="text-neonGreen text-lg">+${pointsNeeded} SP</b> lagi untuk naik ke <br><span class="font-bold text-yellow-400 text-lg">${nextLvlObj.name}</span>!</p>`;
+                    progressHtml = `
+                        <div class="w-full max-w-sm bg-gray-700 h-3 mt-4 rounded-full overflow-hidden shadow-inner border border-gray-600 mx-auto">
+                            <div class="bg-gradient-to-r from-yellow-500 to-neonGreen h-full transition-all duration-500" style="width: ${progressPct}%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1 font-mono">${pts} / ${nextLvlObj.minPoints} SP</p>
+                    `;
+                } else {
+                    statusHtml = `<p class="text-neonGreen font-bold text-lg mt-4 animate-pulse"><i class="fas fa-crown mr-2"></i> LEVEL MAKSIMAL!</p>`;
+                }
+
+                Swal.fire({
+                    title: '',
+                    html: `
+                        <div class="flex flex-col items-center text-center">
+                            <h3 class="text-gray-400 text-sm uppercase tracking-widest mb-4 font-bold"><i class="fas fa-star text-yellow-400 mr-2"></i> Informasi Pangkat</h3>
+                            
+                            <div class="w-24 h-24 md:w-32 md:h-32 bg-darker rounded-full p-2 border-2 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.6)] mb-4 flex items-center justify-center">
+                                <img src="${currentLvlObj.badge}" class="w-full h-full object-contain drop-shadow-md">
+                            </div>
+                            
+                            <p class="text-xs text-gray-400">Pangkat Level ${currentLvlObj.level}</p>
+                            <h2 class="text-2xl md:text-3xl font-bold brand-font text-yellow-400 leading-tight mb-2">${currentLvlObj.name}</h2>
+                            
+                            <div class="bg-darker/80 px-6 py-3 rounded-xl border border-gray-600 inline-block mb-2 mt-2 shadow-inner">
+                                <p class="text-xs md:text-sm text-gray-400 mb-1">Total Poin Saat Ini</p>
+                                <p class="text-2xl md:text-3xl font-black text-neonBlue drop-shadow-[0_0_5px_rgba(0,246,255,0.5)]">${pts} <span class="text-sm font-normal text-gray-300">SP</span></p>
+                            </div>
+                            
+                            ${progressHtml}
+                            ${statusHtml}
+                        </div>
+                    `,
+                    background: '#0f172a',
+                    color: '#fff',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#00f6ff',
+                    customClass: {
+                        popup: 'rounded-2xl border border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)]'
+                    }
+                });
             },
 
             showInfoTujuan: () => {
