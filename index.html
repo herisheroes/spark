@@ -154,7 +154,7 @@
 
         <!-- ================= DASHBOARD SISWA ================= -->
         <div id="viewStudent" class="w-full max-w-6xl hidden flex-col gap-6">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-4">
                 
                 <!-- Kartu Pangkat Level -->
                 <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-yellow-400 w-full col-span-2">
@@ -167,6 +167,16 @@
                         <div class="w-full bg-gray-700 h-1.5 mt-1 rounded-full overflow-hidden" title="Progres Level">
                             <div id="statLevelProgress" class="bg-gradient-to-r from-yellow-500 to-neonGreen h-full transition-all duration-500" style="width: 0%;"></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Kartu Streak Harian -->
+                <div class="glass-panel p-3 md:p-4 flex items-center gap-3 border-l-4 border-orange-500">
+                    <div class="bg-orange-500/20 p-2 md:p-3 rounded-full"><i class="fas fa-fire text-orange-500 text-xl md:text-2xl"></i></div>
+                    <div>
+                        <p class="text-[10px] md:text-xs text-gray-400">Streak Harian</p>
+                        <p class="text-lg md:text-xl font-bold text-orange-500"><span id="statStreak">0</span></p>
+                        <p class="text-[9px] md:text-[10px] text-gray-400 mt-1 bg-darker px-1.5 py-0.5 rounded border border-gray-700 w-max" title="Rekor Streak Terpanjang">Rekor: <span id="statMaxStreak">0</span></p>
                     </div>
                 </div>
 
@@ -585,6 +595,14 @@
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbzJH5aUEo4uuNGv1ZOJ9_zxF0w-zJah6XHVhRXEnAffG2WTnR2IWppNs7-GDHxwtzjK7g/exec'; 
         const apiKey = ""; 
 
+        // Pancing browser untuk memuat daftar suara di background sejak awal
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
         const app = {
             currentUser: null,
             adminChartInstance: null, 
@@ -653,6 +671,7 @@
                 if(document.getElementById('statBooks')) document.getElementById('statBooks').innerText = app.currentUser.totalBuku || 0;
                 if(document.getElementById('statTime')) document.getElementById('statTime').innerText = app.currentUser.totalWaktu || 0;
                 if(document.getElementById('statStreak')) document.getElementById('statStreak').innerText = app.currentUser.streak || 0;
+                if(document.getElementById('statMaxStreak')) document.getElementById('statMaxStreak').innerText = app.currentUser.maxStreak || app.currentUser.streak || 0;
                 if(document.getElementById('statLevelNum')) document.getElementById('statLevelNum').innerText = currentLvlObj.level;
                 if(document.getElementById('statRankName')) document.getElementById('statRankName').innerText = currentLvlObj.name;
                 if(document.getElementById('statBadgeImg')) document.getElementById('statBadgeImg').src = currentLvlObj.badge || 'https://cdn-icons-png.flaticon.com/512/3135/3135695.png';
@@ -1209,6 +1228,19 @@
                 const utterance = new SpeechSynthesisUtterance(page.text);
                 utterance.lang = 'id-ID';
                 utterance.rate = 0.9; // Kecepatan sedikit lambat agar mudah didengar anak-anak
+
+                // Memilih suara logat Indonesia yang paling natural
+                const voices = window.speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    // Prioritas: Google Bahasa Indonesia (Android/Chrome), Suara Microsoft Online, atau id-ID bawaan sistem
+                    let idVoice = voices.find(v => v.name.includes('Google Bahasa Indonesia')) || 
+                                  voices.find(v => v.lang === 'id-ID' && v.name.includes('Online')) ||
+                                  voices.find(v => v.lang === 'id-ID' || v.lang === 'id_ID');
+                    
+                    if (idVoice) {
+                        utterance.voice = idVoice;
+                    }
+                }
 
                 utterance.onstart = () => {
                     app.state.isSpeaking = true;
@@ -1793,7 +1825,7 @@
                         const marginX = 15;
                         const columnWidth = (pageWidth / 2) - (marginX * 1.5); 
                         
-                        drawHalfPage(printSequence[i], marginX, 35, columnWidth);
+                        drawHalfPage(printSequence[i], marginX, 35, 35, columnWidth);
                         
                         if (i + 1 < printSequence.length) {
                             const rightColumnStartX = (pageWidth / 2) + (marginX / 2);
