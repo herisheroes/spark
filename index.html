@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Tambahan Library untuk PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -481,6 +482,9 @@
                         <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                             <h3 class="text-lg md:text-xl font-bold brand-font text-neonBlue">Dashboard Statistik</h3>
                             <div class="flex flex-wrap gap-2">
+                                <button onclick="app.downloadLeaderboardPDF()" class="bg-red-500/20 text-red-500 hover:bg-red-500/40 border border-red-500/30 rounded px-3 py-1 text-sm font-bold transition flex items-center gap-2 mr-2" title="Unduh Rekap Data Peringkat (PDF)">
+                                    <i class="fas fa-file-pdf"></i> Unduh PDF
+                                </button>
                                 <select id="adminSortFilter" onchange="app.renderAdminDashboard()" class="bg-dark border border-neonPurple text-neonPurple rounded px-3 py-1 outline-none text-sm font-bold brand-font">
                                     <option value="points">Urutkan: Poin</option>
                                     <option value="level">Urutkan: Level</option>
@@ -2111,6 +2115,68 @@
                         }
                     }
                 });
+            },
+
+            downloadLeaderboardPDF: () => {
+                if(!app.state.adminData || !app.state.adminData.users) return Swal.fire('Data kosong', 'Belum ada data untuk diunduh.', 'info');
+                
+                // Ambil urutan (sortir) yang sedang aktif
+                const sortFilter = document.getElementById('adminSortFilter') ? document.getElementById('adminSortFilter').value : 'points';
+                let sortedUsers = [...app.state.adminData.users];
+                sortedUsers.sort((a,b) => {
+                    if (sortFilter === 'points') return b.points - a.points;
+                    if (sortFilter === 'level') return b.level - a.level;
+                    if (sortFilter === 'totalBuku') return b.totalBuku - a.totalBuku;
+                    if (sortFilter === 'streak') return b.streak - a.streak;
+                    return b.points - a.points;
+                });
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                doc.setFontSize(16);
+                doc.setTextColor(0, 102, 204);
+                doc.text("REKAP PERINGKAT & PROGRES SISWA - SPARK", 14, 20);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Tanggal Unduh: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, 14, 28);
+                
+                const tableColumn = ["Peringkat", "Nama Siswa", "Username", "Level", "Buku Selesai", "Total Poin", "Streak Harian"];
+                const tableRows = [];
+
+                sortedUsers.forEach((u, index) => {
+                    const rowData = [
+                        index + 1,
+                        u.name,
+                        "@" + u.username,
+                        u.level,
+                        u.totalBuku,
+                        u.points,
+                        u.streak
+                    ];
+                    tableRows.push(rowData);
+                });
+
+                doc.autoTable({
+                    head: [tableColumn],
+                    body: tableRows,
+                    startY: 35,
+                    theme: 'grid',
+                    styles: { fontSize: 10, font: 'helvetica' },
+                    headStyles: { fillColor: [15, 23, 42], textColor: [0, 246, 255], fontStyle: 'bold', halign: 'center' },
+                    columnStyles: {
+                        0: { halign: 'center', cellWidth: 20 },
+                        3: { halign: 'center', cellWidth: 15 },
+                        4: { halign: 'center', cellWidth: 25 },
+                        5: { halign: 'center', cellWidth: 25 },
+                        6: { halign: 'center', cellWidth: 25 }
+                    },
+                    alternateRowStyles: { fillColor: [240, 248, 255] }
+                });
+
+                doc.save(`Rekap_Peringkat_SPARK_${new Date().toISOString().split('T')[0]}.pdf`);
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'PDF Berhasil Diunduh!', showConfirmButton: false, timer: 2000 });
             },
 
             openJournalModal: (userId, userName) => {
