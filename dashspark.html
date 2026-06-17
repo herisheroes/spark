@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPARK - Dashboard Karakter Literat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a' },
+                        spark: { orange: '#f97316', yellow: '#eab308', teal: '#14b8a6' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 1rem;
+        }
+        .loader { border-top-color: #3b82f6; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <nav class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-500 text-white p-2 rounded-lg shadow-md">
+                        <i class="fa-solid fa-book-open-reader text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xl text-slate-900 tracking-tight">SPARK Dashboard</h1>
+                        <p class="text-xs text-slate-500">Analisis Indikator Karakter Literat (Lickona)</p>
+                    </div>
+                </div>
+                <div class="hidden sm:flex items-center text-sm font-medium text-slate-500 gap-4">
+                    <span id="lastUpdated"><i class="fa-regular fa-clock mr-1"></i> Memuat data...</span>
+                    <button onclick="fetchData()" class="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md hover:bg-blue-100 transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Segarkan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <div id="loadingOverlay" class="fixed inset-0 bg-white/80 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-12 w-12 mb-4"></div>
+            <h2 class="text-center text-slate-600 text-lg font-semibold">Menganalisis Data Literasi...</h2>
+        </div>
+
+        <!-- Ringkasan Utama: Skor Kelas & Jumlah User -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-500 rounded-2xl p-6 text-white shadow-lg flex items-center justify-between">
+                <div>
+                    <p class="text-indigo-100 text-sm font-semibold uppercase tracking-wider mb-1">Rata-rata Skor Karakter Literat Kelas</p>
+                    <h2 class="text-4xl font-black" id="kpi-skorKelas">0</h2>
+                </div>
+                <div class="bg-white/20 p-4 rounded-full">
+                    <i class="fa-solid fa-star text-3xl text-yellow-300"></i>
+                </div>
+            </div>
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-400 rounded-2xl p-6 text-white shadow-lg flex items-center justify-between">
+                <div>
+                    <p class="text-emerald-100 text-sm font-semibold uppercase tracking-wider mb-1">Total Siswa / User Aktif</p>
+                    <h2 class="text-4xl font-black" id="kpi-totalSiswaMain">0</h2>
+                </div>
+                <div class="bg-white/20 p-4 rounded-full">
+                    <i class="fa-solid fa-users text-3xl text-emerald-100"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards Keseluruhan (Rata-rata Kelas) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="glass-card p-6 border-l-4 border-blue-500">
+                <p class="text-xs font-semibold text-slate-500 uppercase">Pemahaman Isi Bacaan</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="kpi-pemahaman">0%</h3>
+                <p class="text-xs text-blue-600 mt-2 bg-blue-50 inline-block px-2 py-1 rounded">Rata-rata Kelas</p>
+            </div>
+            <div class="glass-card p-6 border-l-4 border-spark-teal">
+                <p class="text-xs font-semibold text-slate-500 uppercase">Minat & Motivasi</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="kpi-minat">0%</h3>
+                <p class="text-xs text-teal-600 mt-2 bg-teal-50 inline-block px-2 py-1 rounded">Berdasarkan Total Buku</p>
+            </div>
+            <div class="glass-card p-6 border-l-4 border-spark-orange">
+                <p class="text-xs font-semibold text-slate-500 uppercase">Konsistensi Membaca</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="kpi-konsistensi">0%</h3>
+                <p class="text-xs text-orange-600 mt-2 bg-orange-50 inline-block px-2 py-1 rounded">Rata-rata Kelas</p>
+            </div>
+            <div class="glass-card p-6 border-l-4 border-purple-500">
+                <p class="text-xs font-semibold text-slate-500 uppercase">Tanggung Jawab Literasi</p>
+                <h3 class="text-3xl font-bold text-slate-800" id="kpi-tanggungjawab">0%</h3>
+                <p class="text-xs text-purple-600 mt-2 bg-purple-50 inline-block px-2 py-1 rounded">Total Jurnal / Total Baca</p>
+            </div>
+        </div>
+
+        <!-- Grafik Tren Harian -->
+        <div class="glass-card p-6 mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-lg font-bold text-slate-800">
+                    <i class="fa-solid fa-chart-line text-indigo-500 mr-2"></i> Tren Aktivitas Literasi Harian
+                </h2>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <select id="timeRangeFilter" class="border-slate-300 rounded-md text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-white px-3 py-2 border" onchange="handleDateFilterChange()">
+                        <option value="all">Semua Waktu</option>
+                        <option value="this_week">7 Hari Terakhir</option>
+                        <option value="this_month">Bulan Ini</option>
+                        <option value="custom">Rentang Kustom</option>
+                    </select>
+                    
+                    <div id="customDateContainer" class="hidden items-center gap-2">
+                        <input type="date" id="startDate" class="border border-slate-300 rounded-md text-sm px-2 py-1 bg-white">
+                        <span class="text-slate-500 text-sm">s.d</span>
+                        <input type="date" id="endDate" class="border border-slate-300 rounded-md text-sm px-2 py-1 bg-white">
+                        <button onclick="applyDateFilter()" class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm hover:bg-indigo-700">Filter</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="relative h-64 w-full border border-slate-100 rounded-xl p-4 bg-slate-50">
+                    <canvas id="bukuHarianChart"></canvas>
+                </div>
+                <div class="relative h-64 w-full border border-slate-100 rounded-xl p-4 bg-slate-50">
+                    <canvas id="siswaHarianChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="glass-card overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-list-ol text-emerald-500 mr-2"></i> Leaderboard Karakter Literat</h2>
+                <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-full">Siswa Aktif: <span id="totalSiswa">0</span></span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Rank</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase">Nama Siswa</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 uppercase">Skor Literat</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 uppercase">Kategori</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-slate-500 uppercase">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody" class="bg-white divide-y divide-slate-200"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Pop-up Individu -->
+    <div id="studentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-full w-8 h-8 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="p-6 sm:p-8">
+                <div class="flex flex-col md:flex-row gap-6 items-center md:items-start border-b border-slate-100 pb-6 mb-6">
+                    <img id="modal-levelImg" src="" alt="Badge Level" class="w-32 h-32 object-contain drop-shadow-md">
+                    <div class="text-center md:text-left flex-1">
+                        <h2 id="modal-nama" class="text-3xl font-bold text-slate-900 mb-2">Nama Siswa</h2>
+                        <span id="modal-levelName" class="inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-semibold mb-4">Level</span>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-2">
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                                <p class="text-xs text-slate-500 uppercase font-semibold">Total Poin</p>
+                                <p id="modal-rawPoin" class="text-xl font-bold text-blue-600">0</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                                <p class="text-xs text-slate-500 uppercase font-semibold">Total Buku</p>
+                                <p id="modal-rawBuku" class="text-xl font-bold text-teal-600">0</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                                <p class="text-xs text-slate-500 uppercase font-semibold">Rekor Streak</p>
+                                <p id="modal-rawStreak" class="text-xl font-bold text-orange-500">0</p>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-center">
+                                <p class="text-xs text-slate-500 uppercase font-semibold">Jurnal Selesai</p>
+                                <p id="modal-rawJurnal" class="text-xl font-bold text-purple-600">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">Jaring Laba-laba (Radar) Karakter Literat</h3>
+                        <div class="relative w-full aspect-square max-w-sm mx-auto">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col justify-center">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">Detail Skor Indikator Lickona</h3>
+                        <div class="space-y-4">
+                            <!-- Pemahaman -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-semibold text-slate-700">1. Pemahaman Isi Bacaan</span>
+                                    <span id="prog-pemahaman-val" class="font-bold text-blue-600">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                    <div id="prog-pemahaman" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Dihitung dari Poin dibagi Poin Maksimal.</p>
+                            </div>
+                            <!-- Minat -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-semibold text-slate-700">2. Minat dan Motivasi</span>
+                                    <span id="prog-minat-val" class="font-bold text-teal-600">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                    <div id="prog-minat" class="bg-teal-500 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Dihitung dari Jumlah Buku dibagi 14 Target Buku.</p>
+                            </div>
+                            <!-- Konsistensi -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-semibold text-slate-700">3. Konsistensi Membaca</span>
+                                    <span id="prog-konsistensi-val" class="font-bold text-orange-500">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                    <div id="prog-konsistensi" class="bg-orange-500 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Dihitung dari Rekor Streak dibagi Waktu Penelitian.</p>
+                            </div>
+                            <!-- Tanggung Jawab -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="font-semibold text-slate-700">4. Tanggung Jawab Literasi</span>
+                                    <span id="prog-tanggungjawab-val" class="font-bold text-purple-600">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2.5">
+                                    <div id="prog-tanggungjawab" class="bg-purple-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">Dihitung dari Jurnal Selesai dibagi Bacaan Selesai.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 p-4 rounded-xl bg-gradient-to-r from-slate-800 to-slate-900 text-white flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-slate-300 uppercase font-semibold">Skor Karakter Literat</p>
+                                <p id="modal-kategori" class="text-lg font-bold text-yellow-400">Sangat Tinggi</p>
+                            </div>
+                            <div class="text-right">
+                                <h2 id="modal-skorAkhir" class="text-4xl font-black">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Utama -->
+    <script>
+        // =======================================================================
+        // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA YANG TERBARU
+        // =======================================================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbz44s9eqPnmODxPCq1EuEvPCoAlgnFte3FzPxIpSm9u1R6r6KOh6sNCbwWhyAD0YCmK7Q/exec"; 
+        
+        let studentsData = [];
+        let radarChartInstance = null;
+        
+        // Time Series
+        let globalTimeSeries = [];
+        let chartBukuHarian = null;
+        let chartSiswaHarian = null;
+
+        async function fetchData() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Jaringan bermasalah');
+                const data = await response.json();
+                
+                studentsData = data.students;
+                globalTimeSeries = data.timeSeries || [];
+
+                // Update Ringkasan Utama
+                document.getElementById('kpi-skorKelas').innerText = data.summary.averages.totalSkor;
+                document.getElementById('kpi-totalSiswaMain').innerText = data.summary.totalSiswa;
+
+                // Update KPI Atas
+                document.getElementById('totalSiswa').innerText = data.summary.totalSiswa;
+                document.getElementById('kpi-pemahaman').innerText = data.summary.averages.pemahaman + "%";
+                document.getElementById('kpi-minat').innerText = data.summary.averages.minat + "%";
+                document.getElementById('kpi-konsistensi').innerText = data.summary.averages.konsistensi + "%";
+                document.getElementById('kpi-tanggungjawab').innerText = data.summary.averages.tanggungJawab + "%";
+
+                renderLeaderboard(studentsData);
+                
+                // Inisiasi Filter Tanggal & Render Grafik Harian
+                applyDateFilter();
+
+                document.getElementById('lastUpdated').innerHTML = `<i class="fa-regular fa-clock mr-1"></i> Diperbarui: ${new Date().toLocaleTimeString('id-ID')}`;
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Gagal memuat data. Pastikan URL Apps Script benar dan sudah di-Deploy versi baru.");
+            } finally {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
+        }
+
+        function renderLeaderboard(data) {
+            const tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = '';
+            data.forEach((student, index) => {
+                let badgeClass = "bg-slate-100 text-slate-800";
+                if(index === 0) badgeClass = "bg-yellow-100 text-yellow-800 border-yellow-300";
+                if(index === 1) badgeClass = "bg-slate-200 text-slate-700 border-slate-300";
+                if(index === 2) badgeClass = "bg-orange-100 text-orange-800 border-orange-300";
+
+                let catColor = "bg-slate-100 text-slate-800";
+                const cat = student.indicators.kategori;
+                if(cat === "Sangat Tinggi") catColor = "bg-emerald-100 text-emerald-800";
+                else if(cat === "Tinggi") catColor = "bg-blue-100 text-blue-800";
+                else if(cat === "Sedang") catColor = "bg-yellow-100 text-yellow-800";
+                else if(cat === "Rendah") catColor = "bg-orange-100 text-orange-800";
+                else catColor = "bg-red-100 text-red-800";
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-md text-xs font-bold border ${badgeClass}">#${index + 1}</span></td>
+                    <td class="px-6 py-4 font-bold text-slate-900">${student.nama}</td>
+                    <td class="px-6 py-4 text-center font-black text-indigo-600 text-lg">${student.indicators.skor}</td>
+                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 text-xs font-semibold rounded-full ${catColor}">${cat}</span></td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="openModal('${student.id}')" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white px-4 py-1.5 rounded text-sm font-semibold transition-colors">
+                            <i class="fa-solid fa-chart-pie mr-1"></i> Detail
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // ================== LOGIKA TIME SERIES GRAFIK ==================
+        function handleDateFilterChange() {
+            const filter = document.getElementById('timeRangeFilter').value;
+            const customContainer = document.getElementById('customDateContainer');
+            if (filter === 'custom') {
+                customContainer.classList.remove('hidden');
+                customContainer.classList.add('flex');
+            } else {
+                customContainer.classList.add('hidden');
+                customContainer.classList.remove('flex');
+                applyDateFilter();
+            }
+        }
+
+        function applyDateFilter() {
+            const filter = document.getElementById('timeRangeFilter').value;
+            let filteredData = [...globalTimeSeries];
+            const today = new Date();
+            
+            if (filter === 'this_week') {
+                const lastWeek = new Date();
+                lastWeek.setDate(today.getDate() - 7);
+                filteredData = filteredData.filter(item => new Date(item.date) >= lastWeek);
+            } else if (filter === 'this_month') {
+                const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                filteredData = filteredData.filter(item => new Date(item.date) >= startOfMonth);
+            } else if (filter === 'custom') {
+                const start = document.getElementById('startDate').value;
+                const end = document.getElementById('endDate').value;
+                if (start && end) {
+                    const startDate = new Date(start);
+                    const endDate = new Date(end);
+                    endDate.setHours(23, 59, 59);
+                    filteredData = filteredData.filter(item => {
+                        const d = new Date(item.date);
+                        return d >= startDate && d <= endDate;
+                    });
+                }
+            }
+            renderTimeSeriesCharts(filteredData);
+        }
+
+        function renderTimeSeriesCharts(dataArray) {
+            const labels = dataArray.map(item => {
+                const d = new Date(item.date);
+                return `${d.getDate()}/${d.getMonth()+1}`;
+            });
+            const dataBuku = dataArray.map(item => item.buku);
+            const dataSiswa = dataArray.map(item => item.siswa);
+
+            // Grafik Buku
+            const ctxBuku = document.getElementById('bukuHarianChart').getContext('2d');
+            if (chartBukuHarian) chartBukuHarian.destroy();
+            chartBukuHarian = new Chart(ctxBuku, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Buku Selesai Dibaca',
+                        data: dataBuku,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#3b82f6'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+
+            // Grafik Siswa
+            const ctxSiswa = document.getElementById('siswaHarianChart').getContext('2d');
+            if (chartSiswaHarian) chartSiswaHarian.destroy();
+            chartSiswaHarian = new Chart(ctxSiswa, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Siswa Aktif',
+                        data: dataSiswa,
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            });
+        }
+
+        // ================== LOGIKA MODAL POP UP INDIVIDU ==================
+        function openModal(id) {
+            const student = studentsData.find(s => s.id === id);
+            if(!student) return;
+
+            document.getElementById('modal-nama').innerText = student.nama;
+            document.getElementById('modal-levelName').innerText = student.levelName;
+            document.getElementById('modal-levelImg').src = student.levelImg || 'https://via.placeholder.com/150';
+            
+            document.getElementById('modal-rawPoin').innerText = student.raw.poin;
+            document.getElementById('modal-rawBuku').innerText = student.raw.buku;
+            document.getElementById('modal-rawStreak').innerText = student.raw.rekorStreak;
+            document.getElementById('modal-rawJurnal').innerText = student.raw.jurnalSelesai;
+
+            document.getElementById('prog-pemahaman').style.width = student.indicators.pemahaman + '%';
+            document.getElementById('prog-pemahaman-val').innerText = student.indicators.pemahaman + '%';
+            document.getElementById('prog-minat').style.width = student.indicators.minat + '%';
+            document.getElementById('prog-minat-val').innerText = student.indicators.minat + '%';
+            document.getElementById('prog-konsistensi').style.width = student.indicators.konsistensi + '%';
+            document.getElementById('prog-konsistensi-val').innerText = student.indicators.konsistensi + '%';
+            document.getElementById('prog-tanggungjawab').style.width = student.indicators.tanggungJawab + '%';
+            document.getElementById('prog-tanggungjawab-val').innerText = student.indicators.tanggungJawab + '%';
+
+            document.getElementById('modal-skorAkhir').innerText = student.indicators.skor;
+            document.getElementById('modal-kategori').innerText = student.indicators.kategori;
+
+            renderRadarChart(student.indicators);
+
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function renderRadarChart(indicators) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            if(radarChartInstance) radarChartInstance.destroy();
+
+            radarChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Pemahaman Isi', 'Minat & Motivasi', 'Konsistensi', 'Tanggung Jawab'],
+                    datasets: [{
+                        label: 'Nilai Indikator Lickona',
+                        data: [indicators.pemahaman, indicators.minat, indicators.konsistensi, indicators.tanggungJawab],
+                        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(99, 102, 241, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            pointLabels: { font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 'bold' } },
+                            ticks: { min: 0, max: 100, stepSize: 20, display: false }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>
